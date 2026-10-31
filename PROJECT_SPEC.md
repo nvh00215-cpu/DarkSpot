@@ -103,12 +103,16 @@ PROJECT_SPEC.md
 ---
 
 ## 7. Current Status
-- **Current Phase:** Phase 0 Complete.
-- **Completed in Phase 0:**
-  - Initialized Next.js project with TypeScript, Tailwind CSS, App Router.
-  - Installed foundational packages: `zod`, `lucide-react`, `clsx`, `tailwind-merge`.
-  - Created `.env.example` documenting all configuration keys (`LLM_PRIMARY`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `GROQ_API_KEY`, `GROQ_MODEL`, `FORCE_FAILOVER`).
-  - Configured `.gitignore` protecting secret `.env*` files.
-  - Initialized Git repository, verified clean branch tracking, and created the initial Phase 0 commit.
+- **Current Phase:** Phase 1 Complete (Backend, Safeguards, Pipeline, and CLI Runners).
+- **Completed in Phase 1:**
+  - Designed and typed all shared schemas in `/lib/types.ts` using Zod.
+  - Built unified LLM layer in `/lib/llm.ts`, `/lib/providers/groq.ts` (primary), and `/lib/providers/gemini.ts` (backup).
+  - Enforced a hard 30-second timeout with AbortController, automatic single-retry on invalid JSON, markdown fence extraction, in-memory cooldown (60s), and seamless failover to secondary provider on any primary failure.
+  - Built deterministic modules: `/lib/ingest.ts` (Jina Reader + pasted text + 15k char truncation), `/lib/verifyQuotes.ts` (verbatim & fuzzy quote match), `/lib/dates.ts` (detects dates >12mo old, past cycles, and undated sources), `/lib/checklist.ts` (prioritized High/Medium/Low action items), and `/lib/rateLimit.ts` (in-memory IP rate limiter).
+  - Built LLM pipeline modules: `/lib/extract.ts` (facts with verbatim quotes), `/lib/coverage.ts` (dynamic 6-10 topic matrix + gap detection), and `/lib/conflicts.ts` (cross-source contradiction detection with confidence levels).
+  - Built `/api/analyze` route with complete Zod validation, IP rate limiting, source truncation, graceful per-source error handling, and structured error responses.
+  - Created realistic fictional scholarship test documents in `/data/sample/` (`sourceA.txt`, `sourceB.txt`, `sourceC.txt`).
+  - Implemented `scripts/test-llm.ts`, `scripts/run-pipeline.ts`, and `scripts/generate-sample.ts`.
+  - Executed end-to-end pipeline run demonstrating live failover from Groq (upon 429 token limits) to Gemini, verifying 25 facts, detecting 4 conflicts, identifying coverage gaps, generating outdated warnings, and compiling the prioritized checklist.
 - **Next Steps:**
-  - Proceed to Phase 1 (Building the `/lib` modules, failover layer, safeguards, `/api/analyze` route, and CLI test scripts).
+  - Phase 2: Build the complete Dashboard UI (Question input, Source manager, Live Analysis state, Results tabs with Sourced Facts, Coverage Matrix, Conflicts, Outdated warnings, and Interactive Checklist).

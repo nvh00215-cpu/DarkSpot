@@ -1,7 +1,7 @@
 import { generateJson } from "./llm";
+import { RobustConflictDetectionLlmSchema } from "./conflictSchema";
 import {
   Conflict,
-  ConflictDetectionLlmSchema,
   Fact,
   FactCategory,
   LlmCallRecord,
@@ -57,7 +57,25 @@ CRITICAL RULES:
 1. Only report a conflict if the quotes EXPLICITLY contradict or state mutually exclusive terms (e.g. conflicting deadlines, conflicting required documents, differing financial amounts, conflicting eligibility GPA/income thresholds).
 2. DO NOT invent or assume conflicts. If two sources simply state complementary or non-contradictory details, that is NOT a conflict.
 3. Every conflict MUST provide exact quotes from both sources, and a confidence level ("high", "medium", or "low").
-4. Return ONLY a valid JSON object matching the requested schema with a "conflicts" array.`;
+4. Return ONLY a valid JSON object matching this structure:
+{
+  "conflicts": [
+    {
+      "category": "required_documents",
+      "topic": "Tax Document Proof of Income",
+      "sourceA_id": "src_1",
+      "sourceA_name": "Source A",
+      "sourceA_quote": "...",
+      "sourceA_value": "...",
+      "sourceB_id": "src_2",
+      "sourceB_name": "Source B",
+      "sourceB_quote": "...",
+      "sourceB_value": "...",
+      "explanation": "...",
+      "confidence": "high"
+    }
+  ]
+}`;
 
   const factsPayload = categoriesWithMultipleSources.map((item) => ({
     category: item.category,
@@ -74,12 +92,12 @@ CRITICAL RULES:
 
 ${JSON.stringify(factsPayload, null, 2)}
 
-Identify any real contradictions or conflicting statements between different sources.`;
+Identify any real contradictions or conflicting statements between different sources. Return ONLY valid JSON.`;
 
   const response = await generateJson({
     system,
     prompt,
-    schema: ConflictDetectionLlmSchema,
+    schema: RobustConflictDetectionLlmSchema,
     taskName: "detect_conflicts",
   });
 
@@ -96,16 +114,16 @@ Identify any real contradictions or conflicting statements between different sou
     category: c.category as FactCategory,
     topic: c.topic,
     sourceA: {
-      sourceId: c.sourceA_id,
-      sourceName: sourceNameMap.get(c.sourceA_id) || c.sourceA_id,
-      quote: c.sourceA_quote,
-      factValue: c.sourceA_value,
+      sourceId: c.sourceA.sourceId,
+      sourceName: sourceNameMap.get(c.sourceA.sourceId) || c.sourceA.sourceName,
+      quote: c.sourceA.quote,
+      factValue: c.sourceA.factValue,
     },
     sourceB: {
-      sourceId: c.sourceB_id,
-      sourceName: sourceNameMap.get(c.sourceB_id) || c.sourceB_id,
-      quote: c.sourceB_quote,
-      factValue: c.sourceB_value,
+      sourceId: c.sourceB.sourceId,
+      sourceName: sourceNameMap.get(c.sourceB.sourceId) || c.sourceB.sourceName,
+      quote: c.sourceB.quote,
+      factValue: c.sourceB.factValue,
     },
     explanation: c.explanation,
     confidence: c.confidence,
