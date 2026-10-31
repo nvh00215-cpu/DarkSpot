@@ -1,0 +1,20 @@
+{
+  "question": "What should I verify before applying for this scholarship?",
+  "sources": [
+    {
+      "type": "text",
+      "name": "Source A (Official Scholarship Portal)",
+      "file": "sourceA.txt"
+    },
+    {
+      "type": "text",
+      "name": "Source B (STEM Grant Watch Blog - Oct 2026)",
+      "file": "sourceB.txt"
+    },
+    {
+      "type": "text",
+      "name": "Source C (Archived Grant Guidelines 2023-2024)",
+      "file": "sourceC.txt"
+    }
+  ]
+}
