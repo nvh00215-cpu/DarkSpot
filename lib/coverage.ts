@@ -4,10 +4,18 @@ import {
   CoverageMatrixItem,
   Gap,
   LlmCallRecord,
+  OutdatedWarning,
   Source,
   TopicChecklistLlmSchema,
   TopicEvaluationLlmSchema,
+  TopicOverallStatus,
 } from "./types";
+
+interface CoverageParams {
+  question: string;
+  sources: Source[];
+  outdatedWarnings: OutdatedWarning[];
+}
 
 interface CoverageResult {
   coverageMatrix: CoverageMatrix;
@@ -16,25 +24,36 @@ interface CoverageResult {
 }
 
 /**
- * 1. Generates 6-10 essential checklist topics required for a complete answer to the question.
- * 2. Evaluates coverage across each source (covered / not_found / unclear).
- * 3. Topics not covered by ANY source become "potential gaps".
+ * Evaluates coverage and flags information gaps:
+ * - A topic only counts as "covered" if at least one CURRENT source (not flagged outdated/past-cycle) marks it covered.
+ * - If covered only by outdated sources, status = "covered_only_by_outdated" and it becomes a potential gap with note "Only found in an outdated source".
+ * - If no source marks it covered, status = "potential_gap".
  */
-export async function analyzeCoverage(
-  question: string,
-  sources: Source[]
-): Promise<CoverageResult> {
+export async function analyzeCoverage({
+  question,
+  sources,
+  outdatedWarnings,
+}: CoverageParams): Promise<CoverageResult> {
   const callRecords: LlmCallRecord[] = [];
   const activeSources = sources.filter((s) => !s.fetchError && s.rawText.trim().length > 0);
 
-  // Step 1: Generate checklist topics for the question
-  const topicGenSystem = `You are an information completeness auditor.
-Given a user's research question, produce a checklist of 6 to 10 distinct, critical topics that a complete, reliable answer MUST cover.
-Output ONLY a JSON object with a "topics" array containing { "topic": string, "description": string }.`;
+  // Map outdated source IDs
+  const outdatedSourceIds = new Set(
+    outdatedWarnings.filter((w) => w.status === "outdated").map((w) => w.sourceId)
+  );
+
+  // Step 1: Generate checklist topics for the question (Actionable items only)
+  const topicGenSystem = `You are a scholarship and application requirements auditor.
+Given a user's research question, generate 6 to 10 distinct, critical, actionable requirements that an applicant must act on, submit, or verify before applying.
+
+RULES:
+- Focus STRICTLY on actionable requirements: eligibility thresholds, required documents, application procedures, deadlines, renewal conditions, financial amounts, and contact channels.
+- DO NOT generate topics about historical statistics, recipient career outcomes, or general alumni outcomes.
+- Return ONLY a JSON object with a "topics" array containing { "topic": string, "description": string }.`;
 
   const topicGenPrompt = `Research Question: "${question}"
 
-Generate the 6-10 essential topics to evaluate across documentation sources.`;
+Generate 6-10 essential, actionable checklist topics that an applicant needs to act on or verify.`;
 
   const topicRes = await generateJson({
     system: topicGenSystem,
@@ -53,8 +72,7 @@ Generate the 6-10 essential topics to evaluate across documentation sources.`;
 
   const generatedTopics = topicRes.data.topics;
 
-  // Step 2: Evaluate topics for each source
-  // For each source, prompt LLM to mark covered, not_found, or unclear
+  // Step 2: Evaluate topics across each source
   const evaluationsBySource: Map<
     string,
     Map<string, { status: "covered" | "not_found" | "unclear"; quote?: string }>
@@ -105,7 +123,7 @@ ${JSON.stringify(generatedTopics, null, 2)}
     evaluationsBySource.set(source.id, topicMap);
   }
 
-  // Step 3: Build the coverage matrix and detect potential gaps
+  // Step 3: Build coverage matrix with current vs outdated distinction
   const matrixItems: CoverageMatrixItem[] = [];
   const gaps: Gap[] = [];
 
@@ -115,7 +133,8 @@ ${JSON.stringify(generatedTopics, null, 2)}
     const sourceScores: Record<string, "covered" | "not_found" | "unclear"> = {};
     const quotes: Record<string, string | undefined> = {};
 
-    let anyCoveredOrUnclear = false;
+    let coveredByCurrent = false;
+    let coveredByOutdated = false;
 
     for (const source of sources) {
       if (source.fetchError) {
@@ -124,24 +143,47 @@ ${JSON.stringify(generatedTopics, null, 2)}
       }
 
       const score = evaluationsBySource.get(source.id)?.get(tKey);
+      const isOutdatedSource = outdatedSourceIds.has(source.id);
+
       if (score) {
         sourceScores[source.id] = score.status;
         quotes[source.id] = score.quote;
-        if (score.status === "covered" || score.status === "unclear") {
-          anyCoveredOrUnclear = true;
+
+        if (score.status === "covered") {
+          if (isOutdatedSource) {
+            coveredByOutdated = true;
+          } else {
+            coveredByCurrent = true;
+          }
         }
       } else {
         sourceScores[source.id] = "not_found";
       }
     }
 
-    const isGap = !anyCoveredOrUnclear;
+    let overallStatus: TopicOverallStatus;
+    let note: string | undefined;
+    let isGap = false;
+
+    if (coveredByCurrent) {
+      overallStatus = "covered";
+    } else if (coveredByOutdated) {
+      overallStatus = "covered_only_by_outdated";
+      note = "Only found in an outdated source";
+      isGap = true;
+    } else {
+      overallStatus = "potential_gap";
+      note = "Not covered by any of the reviewed sources";
+      isGap = true;
+    }
 
     matrixItems.push({
       topic: t.topic,
       topicDescription: t.description,
+      status: overallStatus,
       sourceScores,
       quotes,
+      note,
       isGap,
     });
 
@@ -158,6 +200,11 @@ ${JSON.stringify(generatedTopics, null, 2)}
         id: `gap_${i + 1}`,
         topic: t.topic,
         description: t.description,
+        gapType:
+          overallStatus === "covered_only_by_outdated"
+            ? "only_found_in_outdated_source"
+            : "missing_from_all_sources",
+        note: note || "Information gap detected across sources",
         severity,
       });
     }

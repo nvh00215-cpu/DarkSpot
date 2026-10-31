@@ -63,21 +63,29 @@ async function main() {
   const unverified = verifiedFacts.filter((f) => !f.isVerified);
   console.log(`   ✓ Verified quotes: ${verifiedFacts.length - unverified.length} passed, ${unverified.length} unverified.`);
 
-  // Step 4: Coverage & Gaps
-  console.log("\nStep 4: Running topic coverage analysis & gap detection...");
-  const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage(question, sources);
+  // Step 4: Outdated & Undated Warnings (Run first to classify sources)
+  console.log("\nStep 4: Checking for outdated / past-cycle warnings (Grouped per source)...");
+  const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date("2026-11-01"));
+  console.log(`   ✓ Evaluated ${outdatedWarnings.length} sources.`);
+
+  // Step 5: Coverage & Gaps
+  console.log("\nStep 5: Running topic coverage analysis & gap detection...");
+  const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage({
+    question,
+    sources,
+    outdatedWarnings,
+  });
   console.log(`   ✓ Generated ${coverageMatrix.topics.length} topics.`);
   console.log(`   ✓ Identified ${gaps.length} potential gaps.`);
 
-  // Step 5: Conflicts
-  console.log("\nStep 5: Detecting conflicts across sources...");
-  const { conflicts, callRecords: conflictRecords } = await detectConflicts(verifiedFacts, sources);
-  console.log(`   ✓ Identified ${conflicts.length} possible conflicts.`);
-
-  // Step 6: Outdated & Undated Warnings
-  console.log("\nStep 6: Checking for outdated / past-cycle warnings (Deterministic)...");
-  const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date("2026-11-01"));
-  console.log(`   ✓ Generated ${outdatedWarnings.length} outdated/undated warnings.`);
+  // Step 6: Conflicts
+  console.log("\nStep 6: Detecting conflicts across sources (Differentiating cycle differences)...");
+  const { conflicts, callRecords: conflictRecords } = await detectConflicts({
+    facts: verifiedFacts,
+    sources,
+    outdatedWarnings,
+  });
+  console.log(`   ✓ Identified ${conflicts.length} discrepancies (${conflicts.filter(c => c.type === "possible_conflict").length} conflicts, ${conflicts.filter(c => c.type === "cycle_difference").length} cycle differences).`);
 
   // Step 7: Prioritized Checklist
   console.log("\nStep 7: Generating prioritized action checklist...");
@@ -105,7 +113,7 @@ async function main() {
     isEmergencyFallback: false,
   };
 
-  // Save to sample analysis.json for emergency fallback
+  // Save to sample analysis.json
   const outPath = path.join(sampleDir, "analysis.json");
   fs.writeFileSync(outPath, JSON.stringify(analysisResult, null, 2), "utf-8");
   console.log(`\nSaved analysis result to: ${outPath}`);
@@ -127,32 +135,37 @@ async function main() {
     });
   }
 
-  console.log("\n--- 2. COVERAGE MATRIX ---");
+  console.log("\n--- 2. UPDATED COVERAGE MATRIX ---");
   coverageMatrix.topics.forEach((t) => {
     const scores = Object.entries(t.sourceScores)
       .map(([sId, sc]) => `${sId}: ${sc}`)
       .join(" | ");
-    console.log(`• [${t.isGap ? "POTENTIAL GAP" : "COVERED"}] ${t.topic}`);
+    console.log(`• [STATUS: ${t.status.toUpperCase()}] ${t.topic}`);
     console.log(`   Scores -> ${scores}`);
+    if (t.note) console.log(`   Note: ${t.note}`);
   });
 
-  console.log("\n--- 3. DETECTED CONFLICTS ---");
+  console.log("\n--- 3. DETECTED CONFLICTS & CYCLE DIFFERENCES ---");
   if (conflicts.length === 0) {
     console.log("No conflicting claims found.");
   } else {
     conflicts.forEach((c) => {
-      console.log(`• [${c.confidence.toUpperCase()} CONFIDENCE] Category: ${c.category} - ${c.topic}`);
+      console.log(`• [TYPE: ${c.type.toUpperCase()}] [CONFIDENCE: ${c.confidence.toUpperCase()}] Category: ${c.category} - ${c.topic}`);
       console.log(`   Explanation: ${c.explanation}`);
-      console.log(`   - ${c.sourceA.sourceName}: "${c.sourceA.quote}"`);
-      console.log(`   - ${c.sourceB.sourceName}: "${c.sourceB.quote}"`);
+      console.log(`   - ${c.sourceA.sourceName} (outdated: ${c.sourceA.isOutdated}): "${c.sourceA.quote}"`);
+      console.log(`   - ${c.sourceB.sourceName} (outdated: ${c.sourceB.isOutdated}): "${c.sourceB.quote}"`);
     });
   }
 
-  console.log("\n--- 4. OUTDATED / UNDATED WARNINGS ---");
+  console.log("\n--- 4. OUTDATED / UNDATED WARNINGS (GROUPED PER SOURCE) ---");
   outdatedWarnings.forEach((w) => {
-    console.log(`• [${w.warningType}] Source: ${w.sourceName}`);
-    console.log(`   Message: ${w.message}`);
-    if (w.quote) console.log(`   Quote: "${w.quote}"`);
+    console.log(`• [${w.status.toUpperCase()}] Source: ${w.sourceName}`);
+    console.log(`   Summary: ${w.summary}`);
+    if (w.evidenceList.length > 0) {
+      w.evidenceList.forEach((e) => {
+        console.log(`    - [${e.evidenceType}] ${e.message} (Quote: "${e.quote || 'N/A'}")`);
+      });
+    }
   });
 
   console.log("\n--- 5. PRIORITIZED VERIFY CHECKLIST ---");

@@ -103,16 +103,16 @@ PROJECT_SPEC.md
 ---
 
 ## 7. Current Status
-- **Current Phase:** Phase 1 Complete (Backend, Safeguards, Pipeline, and CLI Runners).
+- **Current Phase:** Phase 1 Complete with All Review Enhancements Applied.
 - **Completed in Phase 1:**
   - Designed and typed all shared schemas in `/lib/types.ts` using Zod.
-  - Built unified LLM layer in `/lib/llm.ts`, `/lib/providers/groq.ts` (primary), and `/lib/providers/gemini.ts` (backup).
-  - Enforced a hard 30-second timeout with AbortController, automatic single-retry on invalid JSON, markdown fence extraction, in-memory cooldown (60s), and seamless failover to secondary provider on any primary failure.
-  - Built deterministic modules: `/lib/ingest.ts` (Jina Reader + pasted text + 15k char truncation), `/lib/verifyQuotes.ts` (verbatim & fuzzy quote match), `/lib/dates.ts` (detects dates >12mo old, past cycles, and undated sources), `/lib/checklist.ts` (prioritized High/Medium/Low action items), and `/lib/rateLimit.ts` (in-memory IP rate limiter).
-  - Built LLM pipeline modules: `/lib/extract.ts` (facts with verbatim quotes), `/lib/coverage.ts` (dynamic 6-10 topic matrix + gap detection), and `/lib/conflicts.ts` (cross-source contradiction detection with confidence levels).
-  - Built `/api/analyze` route with complete Zod validation, IP rate limiting, source truncation, graceful per-source error handling, and structured error responses.
-  - Created realistic fictional scholarship test documents in `/data/sample/` (`sourceA.txt`, `sourceB.txt`, `sourceC.txt`).
-  - Implemented `scripts/test-llm.ts`, `scripts/run-pipeline.ts`, and `scripts/generate-sample.ts`.
-  - Executed end-to-end pipeline run demonstrating live failover from Groq (upon 429 token limits) to Gemini, verifying 25 facts, detecting 4 conflicts, identifying coverage gaps, generating outdated warnings, and compiling the prioritized checklist.
+  - Built unified LLM layer in `/lib/llm.ts`, `/lib/providers/groq.ts` (primary with `qwen/qwen3.8-27b` fallback), and `/lib/providers/gemini.ts` (backup).
+  - Enforced a hard 30-second timeout with AbortController, markdown fence extraction, in-memory cooldown (60s), and failover to secondary provider on any primary failure.
+  - **Coverage Matrix Enhancements:** Topics are now strictly classified as `covered`, `covered_only_by_outdated` (surfacing as potential gaps with explicit note "Only found in an outdated source"), or `potential_gap`.
+  - **Conflict & Cycle Difference Classification:** Disagreements involving outdated/past-cycle sources are typed as `cycle_difference` with Medium confidence. Discrepancies between current sources are typed as `possible_conflict` with High confidence.
+  - **Grouped Outdated Warnings:** Evaluated per source with lists of evidence quotes and explicit `undated` / `outdated` / `current` statuses.
+  - **Actionable Topics:** Topic generation explicitly guided to focus on actionable submission/eligibility requirements.
+  - **Comprehensive Action Checklist:** Always leads with a High-priority official baseline check, escalates current conflicts and missing documents to High, places cycle differences at Medium, and creates actionable items for every gap.
+  - Re-run pipeline and regenerated `/data/sample/analysis.json`. Verified 24/24 quotes verbatim.
 - **Next Steps:**
-  - Phase 2: Build the complete Dashboard UI (Question input, Source manager, Live Analysis state, Results tabs with Sourced Facts, Coverage Matrix, Conflicts, Outdated warnings, and Interactive Checklist).
+  - Phase 2: Build the complete Dashboard UI (Left input panel, interactive results tabs, side panel quote inspector, and model telemetry badges).

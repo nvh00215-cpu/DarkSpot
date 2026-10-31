@@ -8,7 +8,6 @@ export const SourceInputSchema = z.discriminatedUnion("type", [
       try {
         const parsed = new URL(val);
         const hostname = parsed.hostname.toLowerCase();
-        // Reject localhost and loopback/private IP patterns
         if (
           hostname === "localhost" ||
           hostname === "127.0.0.1" ||
@@ -74,7 +73,6 @@ export const FactSchema = z.object({
 
 export type Fact = z.infer<typeof FactSchema>;
 
-// Schema for raw output directly returned by LLM extraction per source
 export const ExtractedFactsLlmSchema = z.object({
   facts: z.array(
     z.object({
@@ -92,12 +90,21 @@ export type ExtractedFactsLlm = z.infer<typeof ExtractedFactsLlmSchema>;
 export const CoverageStatusEnum = z.enum(["covered", "not_found", "unclear"]);
 export type CoverageStatus = z.infer<typeof CoverageStatusEnum>;
 
+export const TopicOverallStatusEnum = z.enum([
+  "covered",
+  "covered_only_by_outdated",
+  "potential_gap",
+]);
+export type TopicOverallStatus = z.infer<typeof TopicOverallStatusEnum>;
+
 export const CoverageMatrixItemSchema = z.object({
   topic: z.string(),
   topicDescription: z.string().optional(),
+  status: TopicOverallStatusEnum, // Topic-level status
   sourceScores: z.record(z.string(), CoverageStatusEnum), // sourceId -> status
-  quotes: z.record(z.string(), z.string().optional()), // sourceId -> quote if covered/unclear
-  isGap: z.boolean(), // true if not_found across all sources
+  quotes: z.record(z.string(), z.string().optional()), // sourceId -> quote
+  note: z.string().optional(),
+  isGap: z.boolean(), // true if not_found across all or covered only by outdated
 });
 
 export type CoverageMatrixItem = z.infer<typeof CoverageMatrixItemSchema>;
@@ -112,24 +119,24 @@ export const GapSchema = z.object({
   id: z.string(),
   topic: z.string(),
   description: z.string(),
+  gapType: z.enum(["missing_from_all_sources", "only_found_in_outdated_source"]),
+  note: z.string(),
   severity: z.enum(["high", "medium", "low"]).default("medium"),
 });
 
 export type Gap = z.infer<typeof GapSchema>;
 
-// LLM schema for topics checklist generation
 export const TopicChecklistLlmSchema = z.object({
   topics: z.array(
     z.object({
       topic: z.string(),
       description: z.string(),
     })
-  ).min(4).max(12),
+  ).min(4).max(10),
 });
 
 export type TopicChecklistLlm = z.infer<typeof TopicChecklistLlmSchema>;
 
-// LLM schema for topic coverage evaluation
 export const TopicEvaluationLlmSchema = z.object({
   evaluations: z.array(
     z.object({
@@ -144,11 +151,15 @@ export const TopicEvaluationLlmSchema = z.object({
 export type TopicEvaluationLlm = z.infer<typeof TopicEvaluationLlmSchema>;
 
 // --- Conflicts ---
+export const ConflictTypeEnum = z.enum(["possible_conflict", "cycle_difference"]);
+export type ConflictType = z.infer<typeof ConflictTypeEnum>;
+
 export const ConflictConfidenceEnum = z.enum(["high", "medium", "low"]);
 export type ConflictConfidence = z.infer<typeof ConflictConfidenceEnum>;
 
 export const ConflictSchema = z.object({
   id: z.string(),
+  type: ConflictTypeEnum,
   category: FactCategoryEnum,
   topic: z.string(),
   sourceA: z.object({
@@ -156,12 +167,14 @@ export const ConflictSchema = z.object({
     sourceName: z.string(),
     quote: z.string(),
     factValue: z.string(),
+    isOutdated: z.boolean().default(false),
   }),
   sourceB: z.object({
     sourceId: z.string(),
     sourceName: z.string(),
     quote: z.string(),
     factValue: z.string(),
+    isOutdated: z.boolean().default(false),
   }),
   explanation: z.string(),
   confidence: ConflictConfidenceEnum,
@@ -169,34 +182,23 @@ export const ConflictSchema = z.object({
 
 export type Conflict = z.infer<typeof ConflictSchema>;
 
-export const ConflictDetectionLlmSchema = z.object({
-  conflicts: z.array(
-    z.object({
-      category: FactCategoryEnum,
-      topic: z.string(),
-      sourceA_id: z.string(),
-      sourceA_quote: z.string(),
-      sourceA_value: z.string(),
-      sourceB_id: z.string(),
-      sourceB_quote: z.string(),
-      sourceB_value: z.string(),
-      explanation: z.string(),
-      confidence: ConflictConfidenceEnum,
-    })
-  ),
+// --- Outdated & Undated Warnings (Grouped Per Source) ---
+export const OutdatedEvidenceSchema = z.object({
+  detectedDate: z.string().nullable(),
+  evidenceType: z.enum(["older_than_12_months", "past_cycle_reference"]),
+  quote: z.string().optional(),
+  message: z.string(),
 });
 
-export type ConflictDetectionLlm = z.infer<typeof ConflictDetectionLlmSchema>;
+export type OutdatedEvidence = z.infer<typeof OutdatedEvidenceSchema>;
 
-// --- Outdated & Undated Warnings ---
 export const OutdatedWarningSchema = z.object({
   id: z.string(),
   sourceId: z.string(),
   sourceName: z.string(),
-  detectedDate: z.string().nullable(),
-  warningType: z.enum(["older_than_12_months", "undated_source", "past_cycle_reference"]),
-  message: z.string(),
-  quote: z.string().optional(),
+  status: z.enum(["outdated", "undated", "current"]),
+  summary: z.string(),
+  evidenceList: z.array(OutdatedEvidenceSchema),
 });
 
 export type OutdatedWarning = z.infer<typeof OutdatedWarningSchema>;
@@ -210,7 +212,16 @@ export const ChecklistItemSchema = z.object({
   priority: ChecklistPriorityEnum,
   title: z.string(),
   action: z.string(),
-  originType: z.enum(["conflict", "missing_deadline", "missing_documents", "outdated", "gap"]),
+  originType: z.enum([
+    "baseline_verification",
+    "conflict",
+    "cycle_difference",
+    "missing_deadline",
+    "missing_documents",
+    "outdated",
+    "undated",
+    "gap",
+  ]),
   sourceReference: z.string().optional(),
   completed: z.boolean().default(false),
 });
@@ -245,7 +256,6 @@ export const AnalysisResultSchema = z.object({
 
 export type AnalysisResult = z.infer<typeof AnalysisResultSchema>;
 
-// --- Request Schema for /api/analyze ---
 export const AnalyzeRequestSchema = z.object({
   question: z.string().min(1, "Question is required").max(500, "Question cannot exceed 500 characters"),
   sources: z.array(SourceInputSchema).min(1, "At least 1 source is required").max(5, "Maximum 5 sources allowed"),
