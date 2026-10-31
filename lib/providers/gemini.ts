@@ -1,5 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
-
 export interface ProviderCallParams {
   system?: string;
   prompt: string;
@@ -21,31 +19,82 @@ export async function callGemini(params: ProviderCallParams): Promise<ProviderCa
   }
 
   const model = params.model || process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const ai = new GoogleGenAI({ apiKey });
 
-  // 30-second timeout guard
+  // Enforce a hard 30-second timeout using AbortController on fetch
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, 30000);
 
   try {
     const fullPrompt = params.system
-      ? `System instructions:\n${params.system}\n\nTask:\n${params.prompt}`
+      ? `${params.system}\n\n${params.prompt}`
       : params.prompt;
 
-    const response = await ai.models.generateContent({
-      model,
-      contents: fullPrompt,
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const requestBody: any = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: fullPrompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.1,
+      },
+    };
+
+    // Only attach thinkingConfig if using a model known to require/support it
+    if (model.includes("2.5") || model.includes("2.0-flash-thinking")) {
+      requestBody.generationConfig.thinkingConfig = {
+        thinkingBudget: 0,
+      };
+    }
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
-    const text = response.text || "";
-    if (!text) {
+    if (!res.ok) {
+      // If thinkingConfig caused a 400 invalid argument on models that don't support thinkingConfig (e.g. gemini-1.5-flash), retry once without it
+      if (res.status === 400 && requestBody.generationConfig.thinkingConfig) {
+        delete requestBody.generationConfig.thinkingConfig;
+        const retryRes = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          const retryText = retryData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          return { text: retryText, provider: "gemini", model };
+        }
+      }
+
+      const errText = await res.text();
+      const err: any = new Error(`Gemini API returned HTTP ${res.status}: ${errText}`);
+      err.status = res.status;
+      throw err;
+    }
+
+    const data = await res.json();
+    const candidate = data.candidates?.[0];
+    const textPart = candidate?.content?.parts?.[0]?.text || "";
+
+    if (!textPart) {
       throw new Error("Empty response received from Gemini.");
     }
 
     return {
-      text,
+      text: textPart,
       provider: "gemini",
       model,
     };
@@ -53,14 +102,14 @@ export async function callGemini(params: ProviderCallParams): Promise<ProviderCa
     clearTimeout(timeoutId);
 
     if (err.name === "AbortError" || controller.signal.aborted) {
-      const timeoutErr: any = new Error("Gemini call timed out after 30 seconds.");
+      const timeoutErr: any = new Error("Gemini call timed out after hard 30-second limit.");
       timeoutErr.status = 504;
       throw timeoutErr;
     }
 
-    // Inspect error codes / messages for status mapping
-    const status = err.status || err.statusCode || (err.message?.includes("429") ? 429 : 500);
-    err.status = status;
+    if (!err.status) {
+      err.status = 500;
+    }
     throw err;
   }
 }

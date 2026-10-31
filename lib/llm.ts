@@ -20,28 +20,45 @@ export interface GenerateJsonResult<T> {
 // In-memory cooldown tracker (60 seconds) for primary provider when 429/quota error occurs
 let primaryCooldownUntil = 0;
 
+/**
+ * Strips markdown code fences (```json ... ```) and extracts the first {...} or [...] block before JSON parsing.
+ */
 export function extractJsonFromText(rawText: string): any {
-  let cleaned = rawText.trim();
-  // Strip markdown code fences if present (e.g. ```json ... ``` or ``` ...)
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  if (!rawText) {
+    throw new Error("Cannot parse empty response from LLM.");
   }
 
-  // If there's extra narrative surrounding the JSON, attempt to locate the first outer { or [
+  let cleaned = rawText.trim();
+
+  // Strip code fences
+  if (cleaned.includes("```")) {
+    cleaned = cleaned.replace(/```(?:json)?\s*([\s\S]*?)\s*```/gi, "$1").trim();
+  }
+
+  // Extract the outermost JSON structure (object or array)
   const firstBrace = cleaned.indexOf("{");
   const firstBracket = cleaned.indexOf("[");
+
   let startIdx = -1;
+  let isObject = false;
 
   if (firstBrace !== -1 && firstBracket !== -1) {
-    startIdx = Math.min(firstBrace, firstBracket);
+    if (firstBrace < firstBracket) {
+      startIdx = firstBrace;
+      isObject = true;
+    } else {
+      startIdx = firstBracket;
+      isObject = false;
+    }
   } else if (firstBrace !== -1) {
     startIdx = firstBrace;
+    isObject = true;
   } else if (firstBracket !== -1) {
     startIdx = firstBracket;
+    isObject = false;
   }
 
   if (startIdx > -1) {
-    const isObject = cleaned[startIdx] === "{";
     const endChar = isObject ? "}" : "]";
     const lastIdx = cleaned.lastIndexOf(endChar);
     if (lastIdx > startIdx) {
@@ -52,39 +69,12 @@ export function extractJsonFromText(rawText: string): any {
   return JSON.parse(cleaned);
 }
 
-function shouldFailover(err: any): boolean {
-  const status = Number(err?.status || err?.statusCode || 0);
-
-  // Do NOT failover on 400 (bad request) or 401/403 (invalid key / unauthorized)
-  if (status === 400 || status === 401 || status === 403) {
-    console.error(`[LLM Config/Auth Error] Permanent error HTTP ${status}: ${err.message}`);
-    return false;
-  }
-
-  // Fail over on 429 (rate limit/quota), timeouts (504 or message), 5xx server errors, network errors
-  if (
-    status === 429 ||
-    status === 504 ||
-    (status >= 500 && status < 600) ||
-    err.name === "AbortError" ||
-    err.message?.includes("fetch failed") ||
-    err.message?.includes("timed out") ||
-    err.message?.includes("quota") ||
-    err.message?.includes("RESOURCE_EXHAUSTED") ||
-    err.isJsonParseError
-  ) {
-    return true;
-  }
-
-  // Default to failover for unexpected runtime exceptions
-  return true;
-}
-
 export async function generateJson<T>(params: GenerateJsonParams<T>): Promise<GenerateJsonResult<T>> {
-  const primaryPref = (process.env.LLM_PRIMARY || "gemini").toLowerCase();
+  // Default to Groq as primary provider
+  const primaryPref = (process.env.LLM_PRIMARY || "groq").toLowerCase();
   const forceFailover = process.env.FORCE_FAILOVER === "true";
 
-  const primaryProvider: "gemini" | "groq" = primaryPref === "groq" ? "groq" : "gemini";
+  const primaryProvider: "gemini" | "groq" = primaryPref === "gemini" ? "gemini" : "groq";
   const secondaryProvider: "gemini" | "groq" = primaryProvider === "gemini" ? "groq" : "gemini";
 
   const callProvider = async (provider: "gemini" | "groq") => {
@@ -118,7 +108,7 @@ export async function generateJson<T>(params: GenerateJsonParams<T>): Promise<Ge
   const now = Date.now();
   const primaryInCooldown = now < primaryCooldownUntil;
 
-  // Check if we should attempt primary
+  // Attempt Primary Provider
   if (!forceFailover && !primaryInCooldown) {
     try {
       const { data, model } = await executeWithValidation(primaryProvider);
@@ -130,26 +120,25 @@ export async function generateJson<T>(params: GenerateJsonParams<T>): Promise<Ge
         usedFallback: false,
       };
     } catch (primaryErr: any) {
-      console.warn(`[LLM] Primary provider (${primaryProvider}) failed: ${primaryErr.message}`);
+      console.warn(
+        `[LLM Failover Triggered] Primary provider (${primaryProvider}) failed with error [status=${primaryErr.status || "N/A"}]: ${primaryErr.message}`
+      );
 
-      // Set 60-second cooldown on quota / 429
+      // 60-second cooldown on quota / 429
       if (
         primaryErr.status === 429 ||
         primaryErr.message?.includes("quota") ||
         primaryErr.message?.includes("RESOURCE_EXHAUSTED")
       ) {
-        console.warn(`[LLM] Setting 60-second cooldown for primary provider (${primaryProvider}).`);
+        console.warn(`[LLM] Setting 60s cooldown for ${primaryProvider}.`);
         primaryCooldownUntil = Date.now() + 60000;
       }
-
-      if (!shouldFailover(primaryErr)) {
-        throw primaryErr;
-      }
+      // Fail over to secondary on ANY failure (including 400, 401, 403, 404, timeouts, parse errors)
     }
   } else if (forceFailover) {
-    console.info("[LLM] FORCE_FAILOVER=true is set. Skipping primary provider.");
+    console.info("[LLM] FORCE_FAILOVER=true is active. Skipping primary provider.");
   } else if (primaryInCooldown) {
-    console.info(`[LLM] Primary provider in cooldown for another ${Math.round((primaryCooldownUntil - now) / 1000)}s.`);
+    console.info(`[LLM] Primary provider (${primaryProvider}) in cooldown for another ${Math.round((primaryCooldownUntil - now) / 1000)}s.`);
   }
 
   // Attempt Secondary Provider Failover
@@ -157,7 +146,7 @@ export async function generateJson<T>(params: GenerateJsonParams<T>): Promise<Ge
   if (!secondaryKey) {
     console.error(`[LLM] Secondary provider (${secondaryProvider}) API key is missing. Skipping failover.`);
     const err: any = new Error(
-      `Primary provider failed and secondary provider (${secondaryProvider}) API key is missing.`
+      `Primary provider (${primaryProvider}) failed and secondary (${secondaryProvider}) API key is missing.`
     );
     err.code = "LLM_UNAVAILABLE";
     throw err;
