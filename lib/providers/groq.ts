@@ -18,7 +18,6 @@ export async function callGroq(params: GroqCallParams): Promise<GroqCallResult> 
     throw error;
   }
 
-  // Model fallback progression: preferred model -> GROQ_FALLBACK_MODEL
   const defaultModel = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
   const fallbackModel = process.env.GROQ_FALLBACK_MODEL || "qwen/qwen3.8-27b";
   const primaryModel = params.model || defaultModel;
@@ -43,7 +42,7 @@ export async function callGroq(params: GroqCallParams): Promise<GroqCallResult> 
         body: JSON.stringify({
           model: modelToUse,
           messages,
-          temperature: 0.1,
+          temperature: 0.0, // Strict determinism
           max_tokens: 2048,
         }),
         signal: controller.signal,
@@ -88,7 +87,6 @@ export async function callGroq(params: GroqCallParams): Promise<GroqCallResult> 
   try {
     return await attemptCall(primaryModel);
   } catch (firstErr: any) {
-    // If primary model hit 429 or resource exhausted, try fallback model within Groq before bubbling up
     if (
       (firstErr.status === 429 || firstErr.message?.includes("rate_limit_exceeded")) &&
       primaryModel !== fallbackModel
@@ -96,11 +94,7 @@ export async function callGroq(params: GroqCallParams): Promise<GroqCallResult> 
       console.warn(
         `[Groq Model Rate-Limit] Model ${primaryModel} hit limit. Retrying with Groq fallback model ${fallbackModel}...`
       );
-      try {
-        return await attemptCall(fallbackModel);
-      } catch (fallbackErr: any) {
-        throw fallbackErr;
-      }
+      return await attemptCall(fallbackModel);
     }
     throw firstErr;
   }

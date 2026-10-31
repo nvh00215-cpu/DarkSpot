@@ -63,16 +63,17 @@ async function main() {
   const unverified = verifiedFacts.filter((f) => !f.isVerified);
   console.log(`   ✓ Verified quotes: ${verifiedFacts.length - unverified.length} passed, ${unverified.length} unverified.`);
 
-  // Step 4: Outdated & Undated Warnings (Run first to classify sources)
+  // Step 4: Outdated & Undated Warnings (Run to classify sources)
   console.log("\nStep 4: Checking for outdated / past-cycle warnings (Grouped per source)...");
   const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date("2026-11-01"));
   console.log(`   ✓ Evaluated ${outdatedWarnings.length} sources.`);
 
-  // Step 5: Coverage & Gaps
+  // Step 5: Coverage & Gaps (Passing verified extracted facts into coverage evaluation)
   console.log("\nStep 5: Running topic coverage analysis & gap detection...");
   const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage({
     question,
     sources,
+    facts: verifiedFacts,
     outdatedWarnings,
   });
   console.log(`   ✓ Generated ${coverageMatrix.topics.length} topics.`);
@@ -118,34 +119,27 @@ async function main() {
   fs.writeFileSync(outPath, JSON.stringify(analysisResult, null, 2), "utf-8");
   console.log(`\nSaved analysis result to: ${outPath}`);
 
-  // Display required outputs
+  // Display outputs
   console.log("\n==================================================");
   console.log("            PIPELINE EXECUTION REPORT             ");
   console.log("==================================================");
 
-  console.log("\n--- 1. UNVERIFIED FACTS (Failed quote verification) ---");
-  if (unverified.length === 0) {
-    console.log("All quotes successfully verified verbatim in source texts.");
-  } else {
-    unverified.forEach((f) => {
-      console.log(`[!] Category: ${f.category} | Source: ${f.sourceId}`);
-      console.log(`    Value: ${f.value}`);
-      console.log(`    Quote: "${f.exact_quote}"`);
-      console.log(`    Note: ${f.verificationNote}`);
-    });
-  }
-
-  console.log("\n--- 2. UPDATED COVERAGE MATRIX ---");
+  console.log("\n--- 1. COVERAGE MATRIX ---");
   coverageMatrix.topics.forEach((t) => {
     const scores = Object.entries(t.sourceScores)
       .map(([sId, sc]) => `${sId}: ${sc}`)
       .join(" | ");
     console.log(`• [STATUS: ${t.status.toUpperCase()}] ${t.topic}`);
     console.log(`   Scores -> ${scores}`);
+    if (t.quotes) {
+      Object.entries(t.quotes).forEach(([sId, q]) => {
+        if (q) console.log(`     ${sId} Quote: "${q}"`);
+      });
+    }
     if (t.note) console.log(`   Note: ${t.note}`);
   });
 
-  console.log("\n--- 3. DETECTED CONFLICTS & CYCLE DIFFERENCES ---");
+  console.log("\n--- 2. DETECTED CONFLICTS & CYCLE DIFFERENCES ---");
   if (conflicts.length === 0) {
     console.log("No conflicting claims found.");
   } else {
@@ -157,7 +151,7 @@ async function main() {
     });
   }
 
-  console.log("\n--- 4. OUTDATED / UNDATED WARNINGS (GROUPED PER SOURCE) ---");
+  console.log("\n--- 3. OUTDATED / UNDATED WARNINGS ---");
   outdatedWarnings.forEach((w) => {
     console.log(`• [${w.status.toUpperCase()}] Source: ${w.sourceName}`);
     console.log(`   Summary: ${w.summary}`);
@@ -168,7 +162,7 @@ async function main() {
     }
   });
 
-  console.log("\n--- 5. PRIORITIZED VERIFY CHECKLIST ---");
+  console.log("\n--- 4. PRIORITIZED VERIFY CHECKLIST ---");
   checklist.forEach((item) => {
     console.log(`• [${item.priority.toUpperCase()}] ${item.title}`);
     console.log(`   Action: ${item.action}`);

@@ -41,11 +41,10 @@ export async function callGemini(params: ProviderCallParams): Promise<ProviderCa
         },
       ],
       generationConfig: {
-        temperature: 0.1,
+        temperature: 0.0, // Strict determinism
       },
     };
 
-    // Only attach thinkingConfig if using a model known to require/support it
     if (model.includes("2.5") || model.includes("2.0-flash-thinking")) {
       requestBody.generationConfig.thinkingConfig = {
         thinkingBudget: 0,
@@ -64,7 +63,6 @@ export async function callGemini(params: ProviderCallParams): Promise<ProviderCa
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      // If thinkingConfig caused a 400 invalid argument on models that don't support thinkingConfig (e.g. gemini-1.5-flash), retry once without it
       if (res.status === 400 && requestBody.generationConfig.thinkingConfig) {
         delete requestBody.generationConfig.thinkingConfig;
         const retryRes = await fetch(url, {

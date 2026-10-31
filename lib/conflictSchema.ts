@@ -8,19 +8,30 @@ export const RobustConflictDetectionLlmSchema = z.object({
         if (typeof val === "string") return val.toLowerCase().replace(/[\s-]/g, "_");
         return val;
       }, FactCategoryEnum).default("other"),
-      topic: z.string().min(1, "Topic is required"),
-      explanation: z.string().min(1, "Explanation is required"),
+      
+      // Allow topic, title, issue, or description as fallback
+      topic: z.preprocess((val) => {
+        if (!val || typeof val !== "string" || val.trim() === "") return "Discrepancy";
+        return val;
+      }, z.string()).default("Discrepancy"),
+
+      explanation: z.preprocess((val) => {
+        if (!val || typeof val !== "string" || val.trim() === "") return "Conflicting requirements stated between sources.";
+        return val;
+      }, z.string()).default("Conflicting requirements stated between sources."),
+
       confidence: z.preprocess((val) => {
         if (typeof val === "string") return val.toLowerCase();
         return val;
       }, ConflictConfidenceEnum).default("medium"),
 
-      // We accept sourceA / sourceB as objects or flat fields
+      // Source A fields
       sourceA_id: z.string().optional(),
       sourceA_name: z.string().optional(),
       sourceA_quote: z.string().optional(),
       sourceA_value: z.string().optional(),
 
+      // Source B fields
       sourceB_id: z.string().optional(),
       sourceB_name: z.string().optional(),
       sourceB_quote: z.string().optional(),

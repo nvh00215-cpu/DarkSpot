@@ -8,13 +8,21 @@ interface ChecklistParams {
 }
 
 /**
- * Generates a prioritized action checklist:
- * 1. ALWAYS includes: "Confirm the current deadline, official document list, and official application link from the official source" as HIGH priority baseline item.
- * 2. Possible conflicts between current sources = HIGH priority.
- * 3. Missing deadline or missing required documents gaps = HIGH priority.
- * 4. Cycle differences (between current and outdated sources) = MEDIUM priority.
- * 5. Outdated / undated source warnings = MEDIUM priority.
- * 6. An item for EVERY potential gap (missing from all sources or covered only by outdated source) = LOW or MEDIUM based on urgency.
+ * Generates a prioritized action checklist according to strict priority rules:
+ * - HIGH PRIORITY:
+ *   1. Mandatory official baseline verification (deadline, official doc list, official link).
+ *   2. Possible conflicts between current sources.
+ *   3. Critical gaps (missing from all sources OR covered only by outdated sources) in:
+ *      - deadline
+ *      - required documents
+ *      - application process / link
+ *      - renewal conditions
+ *      - award amount
+ * - MEDIUM PRIORITY:
+ *   1. Cycle differences (differences involving an outdated source, like GPA 3.65 vs 3.50 or Amount $12,500 vs $10,000).
+ *   2. Outdated / undated source warnings.
+ * - LOW PRIORITY:
+ *   1. Any other non-critical gaps (e.g. contact info, general advice, additional custom topics).
  */
 export function generateChecklist({
   conflicts,
@@ -24,7 +32,7 @@ export function generateChecklist({
 }: ChecklistParams): ChecklistItem[] {
   const items: ChecklistItem[] = [];
 
-  // 1. Mandatory Baseline Item (Always High Priority)
+  // 1. Mandatory Baseline Item (Always High)
   items.push({
     id: "chk_baseline_official",
     priority: "High",
@@ -49,7 +57,44 @@ export function generateChecklist({
     });
   }
 
-  // 3. Medium Priority: Cycle Differences (outdated source vs current source)
+  // Helper to determine if a gap is in a critical category
+  const isCriticalGap = (topic: string): boolean => {
+    const t = topic.toLowerCase();
+    return (
+      t.includes("deadline") ||
+      t.includes("document") ||
+      t.includes("application") ||
+      t.includes("link") ||
+      t.includes("process") ||
+      t.includes("renewal") ||
+      t.includes("award") ||
+      t.includes("amount") ||
+      t.includes("eligibility")
+    );
+  };
+
+  // 3. High Priority: Critical Gaps (both missing from all AND covered only by outdated)
+  const criticalGaps = gaps.filter((g) => isCriticalGap(g.topic));
+  for (const gap of criticalGaps) {
+    let actionText = "";
+    if (gap.gapType === "only_found_in_outdated_source") {
+      actionText = `${gap.topic} is only mentioned in an outdated/archived source. Check the official current notice to see if renewal or requirements still apply.`;
+    } else {
+      actionText = `${gap.topic} was not found in any reviewed sources. Inquire with the scholarship administrator before submitting.`;
+    }
+
+    items.push({
+      id: `chk_gap_crit_${gap.id}`,
+      priority: "High",
+      title: `Clarify ${gap.topic}`,
+      action: actionText,
+      originType: "gap",
+      sourceReference: gap.gapType === "only_found_in_outdated_source" ? "Outdated Source Only" : "Missing from all sources",
+      completed: false,
+    });
+  }
+
+  // 4. Medium Priority: Cycle Differences (outdated source vs current source)
   const cycleDiffs = conflicts.filter((c) => c.type === "cycle_difference");
   for (const c of cycleDiffs) {
     items.push({
@@ -63,7 +108,7 @@ export function generateChecklist({
     });
   }
 
-  // 4. Outdated / Undated warnings
+  // 5. Medium Priority: Outdated / Undated source warnings
   for (const warn of outdatedWarnings) {
     if (warn.status === "outdated") {
       items.push({
@@ -88,30 +133,16 @@ export function generateChecklist({
     }
   }
 
-  // 5. Item for EVERY potential gap
-  for (const gap of gaps) {
-    const topicLower = gap.topic.toLowerCase();
-    const isUrgent =
-      topicLower.includes("deadline") ||
-      topicLower.includes("document") ||
-      topicLower.includes("eligibility");
-
-    const priority = isUrgent ? "High" : "Low";
-
-    let actionText = "";
-    if (gap.gapType === "only_found_in_outdated_source") {
-      actionText = `${gap.topic} is only mentioned in an outdated/archived source. Check the official current notice to see if renewal or requirements still apply.`;
-    } else {
-      actionText = `${gap.topic} was not found in any reviewed sources. Inquire with the scholarship administrator before submitting.`;
-    }
-
+  // 6. Low Priority: Any Other Non-Critical Gaps
+  const nonCriticalGaps = gaps.filter((g) => !isCriticalGap(g.topic));
+  for (const gap of nonCriticalGaps) {
     items.push({
-      id: `chk_gap_${gap.id}`,
-      priority,
-      title: `Clarify ${gap.topic}`,
-      action: actionText,
+      id: `chk_gap_noncrit_${gap.id}`,
+      priority: "Low",
+      title: `Review ${gap.topic}`,
+      action: `${gap.topic} (${gap.description}) was not covered by current sources. Verify if needed.`,
       originType: "gap",
-      sourceReference: gap.gapType === "only_found_in_outdated_source" ? "Outdated Source Only" : "Missing from all sources",
+      sourceReference: "Optional / Supplementary",
       completed: false,
     });
   }

@@ -1,6 +1,6 @@
 {
   "question": "What should I verify before applying for this scholarship?",
-  "analyzedAt": "2026-10-31T22:45:17.351Z",
+  "analyzedAt": "2026-10-31T22:54:50.447Z",
   "sources": [
     {
       "id": "src_1",
@@ -29,7 +29,7 @@
       "id": "fact_src_1_1",
       "sourceId": "src_1",
       "category": "deadline",
-      "value": "Application deadline is November 30, 2026 at 11:59 PM Eastern Standard Time.",
+      "value": "The final application deadline for the 2026-2027 academic session is November 30, 2026 at 11:59 PM EST.",
       "exact_quote": "The final application deadline for the 2026-2027 academic session is strictly November 30, 2026 at 11:59 PM Eastern Standard Time.",
       "date_mentioned": "November 30, 2026",
       "isVerified": true
@@ -47,7 +47,7 @@
       "id": "fact_src_1_3",
       "sourceId": "src_1",
       "category": "eligibility",
-      "value": "Minimum cumulative GPA required is 3.65 on a 4.0 scale.",
+      "value": "Minimum cumulative GPA of 3.65 on a 4.0 scale is required.",
       "exact_quote": "Minimum cumulative GPA of 3.65 on a 4.0 scale.",
       "date_mentioned": null,
       "isVerified": true
@@ -65,16 +65,16 @@
       "id": "fact_src_1_5",
       "sourceId": "src_1",
       "category": "required_documents",
-      "value": "Official university academic transcript showing coursework through Spring 2026 must be submitted.",
+      "value": "Official university academic transcript showing coursework through Spring 2026.",
       "exact_quote": "Official university academic transcript showing coursework through Spring 2026.",
-      "date_mentioned": "Spring 2026",
+      "date_mentioned": null,
       "isVerified": true
     },
     {
       "id": "fact_src_1_6",
       "sourceId": "src_1",
       "category": "required_documents",
-      "value": "Two letters of academic recommendation from departmental professors are required.",
+      "value": "Two letters of academic recommendation from departmental professors.",
       "exact_quote": "Two letters of academic recommendation from departmental professors.",
       "date_mentioned": null,
       "isVerified": true
@@ -83,7 +83,7 @@
       "id": "fact_src_1_7",
       "sourceId": "src_1",
       "category": "required_documents",
-      "value": "A 750‑word personal statement detailing STEM research background and career objectives is required.",
+      "value": "A 750‑word personal statement detailing STEM research background and career objectives.",
       "exact_quote": "A 750-word personal statement detailing your STEM research background and career objectives.",
       "date_mentioned": null,
       "isVerified": true
@@ -92,7 +92,7 @@
       "id": "fact_src_1_8",
       "sourceId": "src_1",
       "category": "required_documents",
-      "value": "Proof of household income via the previous tax year's Official W‑2 Form or equivalent national tax return is required.",
+      "value": "Proof of household income via the previous tax year's Official W‑2 Form or equivalent national tax return.",
       "exact_quote": "Proof of household income via the previous tax year's Official W-2 Form or equivalent national tax return.",
       "date_mentioned": null,
       "isVerified": true
@@ -118,8 +118,17 @@
     {
       "id": "fact_src_1_11",
       "sourceId": "src_1",
+      "category": "fees_or_amount",
+      "value": "The scholarship provides a merit stipend of $12,500 per academic year.",
+      "exact_quote": "The program awards a merit stipend of $12,500 per academic year.",
+      "date_mentioned": null,
+      "isVerified": true
+    },
+    {
+      "id": "fact_src_1_12",
+      "sourceId": "src_1",
       "category": "contact",
-      "value": "Inquiries can be directed to awards@globalhorizonstem.org or +1 (800) 555-0199.",
+      "value": "Contact the Scholarship Review Board at awards@globalhorizonstem.org or call +1 (800) 555-0199 for admissions inquiries.",
       "exact_quote": "For admissions inquiries, contact the Scholarship Review Board at awards@globalhorizonstem.org or call +1 (800) 555-0199.",
       "date_mentioned": null,
       "isVerified": true
@@ -128,17 +137,17 @@
       "id": "fact_src_2_1",
       "sourceId": "src_2",
       "category": "eligibility",
-      "value": "Minimum GPA required is 3.65.",
-      "exact_quote": "officially state a 3.65 minimum GPA",
+      "value": "Minimum GPA is 3.65; competitive candidates usually have 3.8+ and independent lab experience.",
+      "exact_quote": "While they officially state a 3.65 minimum GPA, competitive candidates usually possess 3.8+ along with independent lab experience.",
       "date_mentioned": null,
       "isVerified": true
     },
     {
       "id": "fact_src_2_2",
       "sourceId": "src_2",
-      "category": "eligibility",
-      "value": "Competitive candidates usually have a GPA of 3.8+ and independent lab experience.",
-      "exact_quote": "competitive candidates usually possess 3.8+ along with independent lab experience",
+      "category": "required_documents",
+      "value": "Submission must include a Signed IRS Form 1040 (pages 1 and 2); standalone W-2 slips are not accepted.",
+      "exact_quote": "While older materials asked for W-2 forms, the updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2), and specifically state that standalone W-2 slips are NOT accepted as proof of income.",
       "date_mentioned": null,
       "isVerified": true
     },
@@ -146,44 +155,35 @@
       "id": "fact_src_2_3",
       "sourceId": "src_2",
       "category": "required_documents",
-      "value": "A signed IRS Form 1040 (pages 1 and 2) must be submitted; standalone W‑2 slips are not accepted.",
-      "exact_quote": "updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2), and specifically state that standalone W-2 slips are NOT accepted as proof of income",
+      "value": "Applicants must provide three letters of recommendation, with at least one from an industry supervisor or internship mentor.",
+      "exact_quote": "Furthermore, applicants must provide three letters of recommendation rather than two, with at least one letter written by an industry supervisor or internship mentor.",
       "date_mentioned": null,
       "isVerified": true
     },
     {
       "id": "fact_src_2_4",
       "sourceId": "src_2",
-      "category": "required_documents",
-      "value": "Three letters of recommendation are required, with at least one from an industry supervisor or internship mentor.",
-      "exact_quote": "applicants must provide three letters of recommendation rather than two, with at least one letter written by an industry supervisor or internship mentor",
-      "date_mentioned": null,
+      "category": "deadline",
+      "value": "Application deadline is November 30, 2026.",
+      "exact_quote": "The deadline on the applicant dashboard is set for November 30, 2026.",
+      "date_mentioned": "November 30, 2026",
       "isVerified": true
     },
     {
       "id": "fact_src_2_5",
       "sourceId": "src_2",
-      "category": "deadline",
-      "value": "Application deadline is November 30, 2026.",
-      "exact_quote": "deadline on the applicant dashboard is set for November 30, 2026",
-      "date_mentioned": "November 30, 2026",
+      "category": "other",
+      "value": "Recommendation letters must be uploaded 48 hours prior to the final cutoff.",
+      "exact_quote": "However, recommendation letters must be uploaded by professors 48 hours prior to the final cutoff.",
+      "date_mentioned": null,
       "isVerified": true
     },
     {
       "id": "fact_src_2_6",
       "sourceId": "src_2",
-      "category": "deadline",
-      "value": "Recommendation letters must be uploaded 48 hours before the final cutoff.",
-      "exact_quote": "recommendation letters must be uploaded by professors 48 hours prior to the final cutoff",
-      "date_mentioned": null,
-      "isVerified": true
-    },
-    {
-      "id": "fact_src_2_7",
-      "sourceId": "src_2",
       "category": "contact",
-      "value": "Questions can be emailed to help@stemgrantwatch.org.",
-      "exact_quote": "email our advisory team at help@stemgrantwatch.org",
+      "value": "Inquiries can be sent via email to help@stemgrantwatch.org.",
+      "exact_quote": "email our advisory team at help@stemgrantwatch.org.",
       "date_mentioned": null,
       "isVerified": true
     },
@@ -191,7 +191,7 @@
       "id": "fact_src_3_1",
       "sourceId": "src_3",
       "category": "deadline",
-      "value": "Application must be submitted by December 15, 2023.",
+      "value": "Application Submission Deadline is December 15, 2023.",
       "exact_quote": "Application Submission Deadline: December 15, 2023.",
       "date_mentioned": "December 15, 2023",
       "isVerified": true
@@ -200,13 +200,22 @@
       "id": "fact_src_3_2",
       "sourceId": "src_3",
       "category": "deadline",
-      "value": "Award notifications will be sent on February 28, 2024.",
+      "value": "Award Notification Date is February 28, 2024.",
       "exact_quote": "Award Notification Date: February 28, 2024.",
       "date_mentioned": "February 28, 2024",
       "isVerified": true
     },
     {
       "id": "fact_src_3_3",
+      "sourceId": "src_3",
+      "category": "fees_or_amount",
+      "value": "Scholarship amount is $10,000 per academic year distributed across two semesters.",
+      "exact_quote": "Scholarship amount was $10,000 per academic year distributed across two semesters.",
+      "date_mentioned": null,
+      "isVerified": true
+    },
+    {
+      "id": "fact_src_3_4",
       "sourceId": "src_3",
       "category": "eligibility",
       "value": "Minimum cumulative GPA required is 3.50.",
@@ -215,19 +224,10 @@
       "isVerified": true
     },
     {
-      "id": "fact_src_3_4",
-      "sourceId": "src_3",
-      "category": "fees_or_amount",
-      "value": "Scholarship provides $10,000 per academic year, distributed across two semesters.",
-      "exact_quote": "Scholarship amount was $10,000 per academic year distributed across two semesters.",
-      "date_mentioned": null,
-      "isVerified": true
-    },
-    {
       "id": "fact_src_3_5",
       "sourceId": "src_3",
       "category": "renewal_conditions",
-      "value": "Renewal requires maintaining a minimum 3.4 GPA and completing 15 hours of community STEM outreach each semester.",
+      "value": "Renewal requires maintaining a minimum 3.4 GPA and 15 hours of community STEM outreach each semester.",
       "exact_quote": "Renewal terms for the 2023 cohort required maintaining a minimum 3.4 GPA and 15 hours of community STEM outreach each semester.",
       "date_mentioned": "2023",
       "isVerified": true
@@ -236,7 +236,7 @@
       "id": "fact_src_3_6",
       "sourceId": "src_3",
       "category": "other",
-      "value": "These rules apply only to the closed 2023-2024 cycle; applicants should check the updated portal for current deadlines and criteria.",
+      "value": "These rules and dates pertain exclusively to the closed 2023-2024 cycle; applicants should check the updated portal for current information.",
       "exact_quote": "Please note that these rules and dates pertain exclusively to the closed 2023-2024 cycle. Current students should navigate to the updated portal for active deadlines and criteria.",
       "date_mentioned": "2023-2024",
       "isVerified": true
@@ -245,8 +245,8 @@
   "coverageMatrix": {
     "topics": [
       {
-        "topic": "Eligibility Confirmation – Academic Standing",
-        "topicDescription": "Verify that your current GPA meets the minimum required (e.g., 3.5/4.0) and that you are enrolled in an eligible program (undergraduate, graduate, specific majors).",
+        "topic": "Eligibility Criteria",
+        "topicDescription": "Academic standing, major, GPA, and applicant restrictions.",
         "status": "covered",
         "sourceScores": {
           "src_1": "covered",
@@ -254,15 +254,46 @@
           "src_3": "covered"
         },
         "quotes": {
-          "src_1": "Applicants must be currently enrolled full-time in an accredited undergraduate STEM program (junior or senior standing) or first-year graduate program. Minimum cumulative GPA of 3.65 on a 4.0 scale.",
-          "src_2": "The foundation looks closely at research aptitude and GPA. While they officially state a 3.65 minimum GPA, competitive candidates usually possess 3.8+ along with independent lab experience.",
+          "src_1": "Applicants must be currently enrolled full-time in an accredited undergraduate STEM program (junior or senior standing) or first-year graduate program.",
+          "src_2": "While they officially state a 3.65 minimum GPA, competitive candidates usually possess 3.8+ along with independent lab experience.",
           "src_3": "Minimum cumulative GPA required was 3.50."
         },
         "isGap": false
       },
       {
-        "topic": "Citizenship/Residency Requirements",
-        "topicDescription": "Confirm you hold the nationality or residency status stipulated by the scholarship (e.g., U.S. citizen, permanent resident, or eligible international student).",
+        "topic": "Application Deadline",
+        "topicDescription": "Submission cutoff date, time, and time zone.",
+        "status": "covered",
+        "sourceScores": {
+          "src_1": "covered",
+          "src_2": "covered",
+          "src_3": "covered"
+        },
+        "quotes": {
+          "src_1": "The final application deadline for the 2026-2027 academic session is strictly November 30, 2026 at 11:59 PM Eastern Standard Time.",
+          "src_2": "The deadline on the applicant dashboard is set for November 30, 2026.",
+          "src_3": "Application Submission Deadline: December 15, 2023."
+        },
+        "isGap": false
+      },
+      {
+        "topic": "Required Documents",
+        "topicDescription": "Transcripts, letters of recommendation, tax forms, essays, etc.",
+        "status": "covered",
+        "sourceScores": {
+          "src_1": "covered",
+          "src_2": "covered",
+          "src_3": "not_found"
+        },
+        "quotes": {
+          "src_1": "Official university academic transcript showing coursework through Spring 2026.",
+          "src_2": "While older materials asked for W-2 forms, the updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2), and specifically state that standalone W-2 slips are NOT accepted as proof of income."
+        },
+        "isGap": false
+      },
+      {
+        "topic": "Application Process & Link",
+        "topicDescription": "Official application submission link, registration portal, and steps.",
         "status": "covered",
         "sourceScores": {
           "src_1": "covered",
@@ -270,61 +301,13 @@
           "src_3": "not_found"
         },
         "quotes": {
-          "src_1": "Demonstrated financial need or citizenship status is not restricted; international students are welcome to apply."
+          "src_1": "Create an account on portal.globalhorizonstem.org, complete the personal profile section, upload all PDF documents, and submit before the deadline."
         },
         "isGap": false
       },
       {
-        "topic": "Required Documentation Package",
-        "topicDescription": "Gather all mandatory documents: official transcripts, two academic reference letters, a personal statement (max 1,000 words), and proof of enrollment (registration letter or student ID).",
-        "status": "covered",
-        "sourceScores": {
-          "src_1": "unclear",
-          "src_2": "covered",
-          "src_3": "not_found"
-        },
-        "quotes": {
-          "src_1": "1. Official university academic transcript... 2. Two letters of academic recommendation... 3. A 750-word personal statement... 4. Proof of household income...",
-          "src_2": "the updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2)... Furthermore, applicants must provide three letters of recommendation rather than two..."
-        },
-        "isGap": false
-      },
-      {
-        "topic": "Application Deadline and Submission Method",
-        "topicDescription": "Note the final submission date (including time zone) and the accepted delivery channel (online portal, email attachment, or mailed hard copy). Submit before the deadline to avoid disqualification.",
-        "status": "covered",
-        "sourceScores": {
-          "src_1": "covered",
-          "src_2": "covered",
-          "src_3": "covered"
-        },
-        "quotes": {
-          "src_1": "The final application deadline for the 2026-2027 academic session is strictly November 30, 2026 at 11:59 PM Eastern Standard Time... Create an account on portal.globalhorizonstem.org... upload all PDF documents, and submit before the deadline.",
-          "src_2": "The deadline on the applicant dashboard is set for November 30, 2026. However, recommendation letters must be uploaded by professors 48 hours prior to the final cutoff.",
-          "src_3": "Application Submission Deadline: December 15, 2023."
-        },
-        "isGap": false
-      },
-      {
-        "topic": "Financial Details – Award Amount and Disbursement",
-        "topicDescription": "Verify the exact scholarship amount, whether it is a one‑time grant or renewable, and understand the disbursement schedule (e.g., semester‑wise direct deposit).",
-        "status": "covered_only_by_outdated",
-        "sourceScores": {
-          "src_1": "unclear",
-          "src_2": "unclear",
-          "src_3": "covered"
-        },
-        "quotes": {
-          "src_1": "The program awards a merit stipend of $12,500 per academic year.",
-          "src_2": "offering up to $12,500.",
-          "src_3": "Scholarship amount was $10,000 per academic year distributed across two semesters."
-        },
-        "note": "Only found in an outdated source",
-        "isGap": true
-      },
-      {
-        "topic": "Renewal and Performance Conditions",
-        "topicDescription": "Check the criteria for maintaining the award (minimum GPA each term, progress reports, community service hours) and the required renewal application timeline.",
+        "topic": "Renewal Conditions",
+        "topicDescription": "Conditions required to renew the award in future semesters/years.",
         "status": "covered_only_by_outdated",
         "sourceScores": {
           "src_1": "not_found",
@@ -338,21 +321,23 @@
         "isGap": true
       },
       {
-        "topic": "Eligibility for Concurrent Funding",
-        "topicDescription": "Determine if you can receive this scholarship alongside other grants or loans, and whether any caps on total aid apply.",
-        "status": "potential_gap",
+        "topic": "Award Amount & Disbursement",
+        "topicDescription": "Stipend amount, disbursement schedule, or fees.",
+        "status": "covered",
         "sourceScores": {
-          "src_1": "not_found",
-          "src_2": "not_found",
-          "src_3": "not_found"
+          "src_1": "covered",
+          "src_2": "covered",
+          "src_3": "covered"
         },
-        "quotes": {},
-        "note": "Not covered by any of the reviewed sources",
-        "isGap": true
+        "quotes": {
+          "src_1": "There are no application fees.",
+          "src_3": "Scholarship amount was $10,000 per academic year distributed across two semesters."
+        },
+        "isGap": false
       },
       {
-        "topic": "Contact Information for Queries",
-        "topicDescription": "Record the scholarship office’s email address, phone number, and office hours so you can clarify any uncertainties before submission.",
+        "topic": "Contact Information",
+        "topicDescription": "Official email, support hotline, or inquiry contact for questions.",
         "status": "covered",
         "sourceScores": {
           "src_1": "covered",
@@ -361,7 +346,7 @@
         },
         "quotes": {
           "src_1": "For admissions inquiries, contact the Scholarship Review Board at awards@globalhorizonstem.org or call +1 (800) 555-0199.",
-          "src_2": "Feel free to drop a comment below or email our advisory team at help@stemgrantwatch.org."
+          "src_2": "email our advisory team at help@stemgrantwatch.org."
         },
         "isGap": false
       }
@@ -370,32 +355,60 @@
   "gaps": [
     {
       "id": "gap_5",
-      "topic": "Financial Details – Award Amount and Disbursement",
-      "description": "Verify the exact scholarship amount, whether it is a one‑time grant or renewable, and understand the disbursement schedule (e.g., semester‑wise direct deposit).",
+      "topic": "Renewal Conditions",
+      "description": "Conditions required to renew the award in future semesters/years.",
       "gapType": "only_found_in_outdated_source",
       "note": "Only found in an outdated source",
-      "severity": "medium"
-    },
-    {
-      "id": "gap_6",
-      "topic": "Renewal and Performance Conditions",
-      "description": "Check the criteria for maintaining the award (minimum GPA each term, progress reports, community service hours) and the required renewal application timeline.",
-      "gapType": "only_found_in_outdated_source",
-      "note": "Only found in an outdated source",
-      "severity": "medium"
-    },
-    {
-      "id": "gap_7",
-      "topic": "Eligibility for Concurrent Funding",
-      "description": "Determine if you can receive this scholarship alongside other grants or loans, and whether any caps on total aid apply.",
-      "gapType": "missing_from_all_sources",
-      "note": "Not covered by any of the reviewed sources",
       "severity": "high"
     }
   ],
   "conflicts": [
     {
       "id": "conflict_1",
+      "type": "possible_conflict",
+      "category": "required_documents",
+      "topic": "Proof of Income Document Type",
+      "sourceA": {
+        "sourceId": "src_1",
+        "sourceName": "Source A (Official Scholarship Portal)",
+        "quote": "Proof of household income via the previous tax year's Official W-2 Form or equivalent national tax return.",
+        "factValue": "W-2 Form or equivalent national tax return accepted",
+        "isOutdated": false
+      },
+      "sourceB": {
+        "sourceId": "src_2",
+        "sourceName": "Source B (STEM Grant Watch Blog - Oct 2026)",
+        "quote": "While older materials asked for W-2 forms, the updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2), and specifically state that standalone W-2 slips are NOT accepted as proof of income.",
+        "factValue": "Signed IRS Form 1040 required; W-2 slips not accepted",
+        "isOutdated": false
+      },
+      "explanation": "Source A accepts W-2 forms or equivalent national tax returns, while Source B explicitly states that standalone W-2 slips are NOT accepted and requires a Signed IRS Form 1040.",
+      "confidence": "high"
+    },
+    {
+      "id": "conflict_2",
+      "type": "possible_conflict",
+      "category": "required_documents",
+      "topic": "Number of Recommendation Letters",
+      "sourceA": {
+        "sourceId": "src_1",
+        "sourceName": "Source A (Official Scholarship Portal)",
+        "quote": "Two letters of academic recommendation from departmental professors.",
+        "factValue": "2 letters required",
+        "isOutdated": false
+      },
+      "sourceB": {
+        "sourceId": "src_2",
+        "sourceName": "Source B (STEM Grant Watch Blog - Oct 2026)",
+        "quote": "Furthermore, applicants must provide three letters of recommendation rather than two, with at least one letter written by an industry supervisor or internship mentor.",
+        "factValue": "3 letters required",
+        "isOutdated": false
+      },
+      "explanation": "Source A requires two letters of recommendation, whereas Source B states that applicants must provide three letters, with specific requirements for the source of one letter.",
+      "confidence": "high"
+    },
+    {
+      "id": "conflict_3",
       "type": "cycle_difference",
       "category": "eligibility",
       "topic": "Minimum Cumulative GPA",
@@ -413,52 +426,30 @@
         "factValue": "3.50",
         "isOutdated": true
       },
-      "explanation": "Source A states a minimum cumulative GPA requirement of 3.65, whereas Source C (an archived guideline from a previous year) states a minimum requirement of 3.50. (Note: Likely a cycle-to-cycle revision between older and current guidelines).",
+      "explanation": "Source A lists the minimum cumulative GPA as 3.65, while Source C (archived guidelines) lists it as 3.50. Although Source C is archived, it presents a conflicting factual value for the requirement. (Note: Likely a cycle-to-cycle revision between older and current guidelines).",
       "confidence": "medium"
     },
     {
-      "id": "conflict_2",
-      "type": "possible_conflict",
-      "category": "required_documents",
-      "topic": "Proof of Income Document Type",
+      "id": "conflict_4",
+      "type": "cycle_difference",
+      "category": "fees_or_amount",
+      "topic": "Scholarship Award Amount",
       "sourceA": {
         "sourceId": "src_1",
         "sourceName": "Source A (Official Scholarship Portal)",
-        "quote": "Proof of household income via the previous tax year's Official W-2 Form or equivalent national tax return.",
-        "factValue": "W-2 Form accepted",
+        "quote": "The program awards a merit stipend of $12,500 per academic year.",
+        "factValue": "$12,500",
         "isOutdated": false
       },
       "sourceB": {
-        "sourceId": "src_2",
-        "sourceName": "Source B (STEM Grant Watch Blog - Oct 2026)",
-        "quote": "updated compliance guidelines require submission of an Signed IRS Form 1040 (pages 1 and 2), and specifically state that standalone W-2 slips are NOT accepted as proof of income",
-        "factValue": "Signed IRS Form 1040 required; W-2 not accepted",
-        "isOutdated": false
+        "sourceId": "src_3",
+        "sourceName": "Source C (Archived Grant Guidelines 2023-2024)",
+        "quote": "Scholarship amount was $10,000 per academic year distributed across two semesters.",
+        "factValue": "$10,000",
+        "isOutdated": true
       },
-      "explanation": "Source A accepts the W-2 Form as proof of household income, whereas Source B explicitly states that standalone W-2 slips are not accepted and requires an IRS Form 1040 instead.",
-      "confidence": "high"
-    },
-    {
-      "id": "conflict_3",
-      "type": "possible_conflict",
-      "category": "required_documents",
-      "topic": "Number of Recommendation Letters",
-      "sourceA": {
-        "sourceId": "src_1",
-        "sourceName": "Source A (Official Scholarship Portal)",
-        "quote": "Two letters of academic recommendation from departmental professors.",
-        "factValue": "2 letters",
-        "isOutdated": false
-      },
-      "sourceB": {
-        "sourceId": "src_2",
-        "sourceName": "Source B (STEM Grant Watch Blog - Oct 2026)",
-        "quote": "applicants must provide three letters of recommendation rather than two, with at least one letter written by an industry supervisor or internship mentor",
-        "factValue": "3 letters",
-        "isOutdated": false
-      },
-      "explanation": "Source A requires two letters of academic recommendation, whereas Source B contradicts this by stating that three letters are required.",
-      "confidence": "high"
+      "explanation": "Source A states the scholarship provides a stipend of $12,500 per academic year, while Source C states the amount was $10,000 per academic year. (Note: Likely a cycle-to-cycle revision between older and current guidelines).",
+      "confidence": "medium"
     }
   ],
   "outdatedWarnings": [
@@ -529,7 +520,7 @@
       "completed": false
     },
     {
-      "id": "chk_conf_conflict_2",
+      "id": "chk_conf_conflict_1",
       "priority": "High",
       "title": "Resolve contradiction on Proof of Income Document Type",
       "action": "Contact the scholarship office directly to clarify conflicting statements between \"Source A (Official Scholarship Portal)\" and \"Source B (STEM Grant Watch Blog - Oct 2026)\".",
@@ -538,7 +529,7 @@
       "completed": false
     },
     {
-      "id": "chk_conf_conflict_3",
+      "id": "chk_conf_conflict_2",
       "priority": "High",
       "title": "Resolve contradiction on Number of Recommendation Letters",
       "action": "Contact the scholarship office directly to clarify conflicting statements between \"Source A (Official Scholarship Portal)\" and \"Source B (STEM Grant Watch Blog - Oct 2026)\".",
@@ -547,9 +538,27 @@
       "completed": false
     },
     {
-      "id": "chk_cycle_conflict_1",
+      "id": "chk_gap_crit_gap_5",
+      "priority": "High",
+      "title": "Clarify Renewal Conditions",
+      "action": "Renewal Conditions is only mentioned in an outdated/archived source. Check the official current notice to see if renewal or requirements still apply.",
+      "originType": "gap",
+      "sourceReference": "Outdated Source Only",
+      "completed": false
+    },
+    {
+      "id": "chk_cycle_conflict_3",
       "priority": "Medium",
       "title": "Verify cycle update for Minimum Cumulative GPA",
+      "action": "Criteria appears to have evolved from older guidelines (Source C (Archived Grant Guidelines 2023-2024)). Confirm that you are following the current academic year terms.",
+      "originType": "cycle_difference",
+      "sourceReference": "Source A (Official Scholarship Portal) vs Source C (Archived Grant Guidelines 2023-2024)",
+      "completed": false
+    },
+    {
+      "id": "chk_cycle_conflict_4",
+      "priority": "Medium",
+      "title": "Verify cycle update for Scholarship Award Amount",
       "action": "Criteria appears to have evolved from older guidelines (Source C (Archived Grant Guidelines 2023-2024)). Confirm that you are following the current academic year terms.",
       "originType": "cycle_difference",
       "sourceReference": "Source A (Official Scholarship Portal) vs Source C (Archived Grant Guidelines 2023-2024)",
@@ -563,33 +572,6 @@
       "originType": "outdated",
       "sourceReference": "Source C (Archived Grant Guidelines 2023-2024)",
       "completed": false
-    },
-    {
-      "id": "chk_gap_gap_5",
-      "priority": "Low",
-      "title": "Clarify Financial Details – Award Amount and Disbursement",
-      "action": "Financial Details – Award Amount and Disbursement is only mentioned in an outdated/archived source. Check the official current notice to see if renewal or requirements still apply.",
-      "originType": "gap",
-      "sourceReference": "Outdated Source Only",
-      "completed": false
-    },
-    {
-      "id": "chk_gap_gap_6",
-      "priority": "Low",
-      "title": "Clarify Renewal and Performance Conditions",
-      "action": "Renewal and Performance Conditions is only mentioned in an outdated/archived source. Check the official current notice to see if renewal or requirements still apply.",
-      "originType": "gap",
-      "sourceReference": "Outdated Source Only",
-      "completed": false
-    },
-    {
-      "id": "chk_gap_gap_7",
-      "priority": "High",
-      "title": "Clarify Eligibility for Concurrent Funding",
-      "action": "Eligibility for Concurrent Funding was not found in any reviewed sources. Inquire with the scholarship administrator before submitting.",
-      "originType": "gap",
-      "sourceReference": "Missing from all sources",
-      "completed": false
     }
   ],
   "modelsUsed": [
@@ -597,57 +579,50 @@
       "task": "extract_facts_src_1",
       "provider": "groq",
       "model": "openai/gpt-oss-120b",
-      "latencyMs": 3732,
+      "latencyMs": 8638,
       "usedFallback": false
     },
     {
       "task": "extract_facts_src_2",
       "provider": "groq",
       "model": "openai/gpt-oss-120b",
-      "latencyMs": 2925,
+      "latencyMs": 2300,
       "usedFallback": false
     },
     {
       "task": "extract_facts_src_3",
       "provider": "groq",
       "model": "openai/gpt-oss-120b",
-      "latencyMs": 2921,
-      "usedFallback": false
-    },
-    {
-      "task": "generate_checklist_topics",
-      "provider": "groq",
-      "model": "openai/gpt-oss-120b",
-      "latencyMs": 1555,
+      "latencyMs": 10025,
       "usedFallback": false
     },
     {
       "task": "evaluate_coverage_src_1",
       "provider": "groq",
       "model": "qwen/qwen3.8-27b",
-      "latencyMs": 2239,
+      "latencyMs": 1606,
       "usedFallback": false
     },
     {
       "task": "evaluate_coverage_src_2",
-      "provider": "gemini",
-      "model": "gemini-3.5-flash-lite",
-      "latencyMs": 2340,
-      "usedFallback": true
+      "provider": "groq",
+      "model": "qwen/qwen3.8-27b",
+      "latencyMs": 1349,
+      "usedFallback": false
     },
     {
       "task": "evaluate_coverage_src_3",
-      "provider": "gemini",
-      "model": "gemini-3.5-flash-lite",
-      "latencyMs": 1777,
-      "usedFallback": true
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latencyMs": 4917,
+      "usedFallback": false
     },
     {
       "task": "detect_conflicts",
-      "provider": "gemini",
-      "model": "gemini-3.5-flash-lite",
-      "latencyMs": 2187,
-      "usedFallback": true
+      "provider": "groq",
+      "model": "qwen/qwen3.8-27b",
+      "latencyMs": 11179,
+      "usedFallback": false
     }
   ],
   "isEmergencyFallback": false
