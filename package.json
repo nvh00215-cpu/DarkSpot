@@ -6,15 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test-llm": "tsx scripts/test-llm.ts",
+    "generate-sample": "tsx scripts/generate-sample.ts",
+    "run-pipeline": "tsx scripts/run-pipeline.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.32.0",
     "clsx": "^2.1.1",
+    "dotenv": "^18.0.9",
     "lucide-react": "^1.66.0",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0",
+    "tsx": "^4.23.15",
     "zod": "^4.6.7"
   },
   "devDependencies": {
