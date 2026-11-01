@@ -14,7 +14,7 @@ const TestResponseSchema = z.object({
 });
 
 async function run() {
-  console.log("=== Testing GapSense LLM Providers ===");
+  console.log("=== Testing DarkSpot LLM Providers ===");
   console.log(`Current LLM_PRIMARY: ${process.env.LLM_PRIMARY || "gemini (default)"}`);
   console.log(`FORCE_FAILOVER: ${process.env.FORCE_FAILOVER || "false"}`);
 

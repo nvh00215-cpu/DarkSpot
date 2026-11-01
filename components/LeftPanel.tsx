@@ -113,7 +113,7 @@ export function LeftPanel({
       <div>
         <div className="flex items-center gap-2 mb-1">
           <BookOpen className="w-5 h-5 text-[#6F4E37]" />
-          <h1 className="text-2xl font-serif font-bold text-[#3B2A20] tracking-tight">GapSense</h1>
+          <h1 className="text-2xl font-serif font-bold text-[#3B2A20] tracking-tight">DarkSpot</h1>
         </div>
         <p className="text-xs text-[#7A6352] font-sans">Find what your sources don&apos;t tell you.</p>
       </div>

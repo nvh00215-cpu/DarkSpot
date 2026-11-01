@@ -1,7 +1,7 @@
-# PROJECT SPEC: GapSense - AI-Assisted Information Gap Detection Platform
+# PROJECT SPEC: DarkSpot - AI-Assisted Information Gap Detection Platform
 
 ## 1. Overview
-GapSense is a web app where a user enters a research question (e.g., "What should I verify before applying for this scholarship?") and adds several sources (URLs or pasted text).
+DarkSpot is a web app where a user enters a research question (e.g., "What should I verify before applying for this scholarship?") and adds several sources (URLs or pasted text).
 The app analyzes the sources and surfaces:
 1. Structured key facts found per source
 2. Potential information gaps (topics not covered by any source)

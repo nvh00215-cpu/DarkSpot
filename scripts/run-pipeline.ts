@@ -16,7 +16,7 @@ import { AnalysisResult, SourceInput } from "../lib/types";
 
 async function main() {
   console.log("==================================================");
-  console.log("       GapSense End-to-End Pipeline Runner        ");
+  console.log("       DarkSpot End-to-End Pipeline Runner        ");
   console.log("==================================================");
 
   const sampleDir = path.join(process.cwd(), "data", "sample");

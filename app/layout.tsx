@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GapSense — AI-Assisted Information Gap Detection",
+  title: "DarkSpot — AI-Assisted Information Gap Detection",
   description: "Find what your sources don't tell you. Structured information gap and conflict analysis.",
 };
 

@@ -39,7 +39,7 @@ export async function ingestSource(input: SourceInput, index: number): Promise<S
       method: "GET",
       headers: {
         "Accept": "text/plain",
-        "User-Agent": "GapSense-Reader/1.0",
+        "User-Agent": "DarkSpot-Reader/1.0",
       },
       signal: controller.signal,
     });
