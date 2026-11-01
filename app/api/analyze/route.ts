@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AnalyzeRequestSchema, AnalysisResult } from "@/lib/types";
+import { AnalyzeRequestSchema, AnalysisResult, Source, Fact, LlmCallRecord } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { ingestAllSources } from "@/lib/ingest";
-import { extractAllFacts } from "@/lib/extract";
+import { extractFactsFromSource } from "@/lib/extract";
 import { verifyFactQuotes } from "@/lib/verifyQuotes";
 import { analyzeCoverage } from "@/lib/coverage";
 import { detectConflicts } from "@/lib/conflicts";
 import { checkOutdatedInformation } from "@/lib/dates";
 import { generateChecklist } from "@/lib/checklist";
 
-export const maxDuration = 60; // Allow sufficient time for LLM calls if needed
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   // 1. IP Rate Limiting Guard
@@ -64,7 +64,6 @@ export async function POST(req: NextRequest) {
     // 3. Step 1: INGEST
     const sources = await ingestAllSources(sourceInputs);
 
-    // If all sources failed to fetch
     const validSources = sources.filter((s) => !s.fetchError && s.rawText.trim().length > 0);
     if (validSources.length === 0) {
       return NextResponse.json(
@@ -77,30 +76,46 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const modelsUsedList = [];
+    const modelsUsedList: LlmCallRecord[] = [];
 
-    // 4. Step 2: EXTRACT FACTS
-    const { facts: rawFacts, callRecords: extractRecords } = await extractAllFacts(sources, question);
-    modelsUsedList.push(...extractRecords);
+    // 4. Step 2: EXTRACT FACTS IN PARALLEL (Promise.allSettled)
+    const extractionPromises = sources.map((source) => extractFactsFromSource(source, question));
+    const settledExtractions = await Promise.allSettled(extractionPromises);
+
+    const rawFacts: Fact[] = [];
+    settledExtractions.forEach((res, idx) => {
+      if (res.status === "fulfilled") {
+        rawFacts.push(...res.value.facts);
+        modelsUsedList.push(res.value.callRecord);
+      } else {
+        console.error(`Extraction failed for source ${sources[idx]?.id}:`, res.reason);
+      }
+    });
 
     // 5. Step 3: VERIFY QUOTES (Deterministic, no LLM)
     const verifiedFacts = verifyFactQuotes(rawFacts, sources);
 
-    // 6. Step 4: COVERAGE CHECK & GAPS
-    const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage(
+    // 6. Step 4: OUTDATED & UNDATED WARNINGS (Deterministic, grouped per source)
+    const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date("2026-11-01"));
+
+    // 7. Step 5: COVERAGE CHECK & GAPS (Aware of outdated sources & fact grounding)
+    const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage({
       question,
-      sources
-    );
+      sources,
+      facts: verifiedFacts,
+      outdatedWarnings,
+    });
     modelsUsedList.push(...coverageRecords);
 
-    // 7. Step 5: CONFLICT DETECTION (Only verified facts)
-    const { conflicts, callRecords: conflictRecords } = await detectConflicts(verifiedFacts, sources);
+    // 8. Step 6: CONFLICT DETECTION (Distinguishes current conflicts from cycle differences)
+    const { conflicts, callRecords: conflictRecords } = await detectConflicts({
+      facts: verifiedFacts,
+      sources,
+      outdatedWarnings,
+    });
     modelsUsedList.push(...conflictRecords);
 
-    // 8. Step 6: OUTDATED & UNDATED WARNINGS (Deterministic, no LLM)
-    const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date());
-
-    // 9. Step 7: CHECKLIST GENERATION (Deterministic, no LLM)
+    // 9. Step 7: CHECKLIST GENERATION (Comprehensive prioritized actions)
     const checklist = generateChecklist({
       conflicts,
       gaps,

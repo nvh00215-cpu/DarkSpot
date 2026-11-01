@@ -45,9 +45,21 @@ async function main() {
   const sources = await ingestAllSources(sourceInputs);
   const { facts: rawFacts, callRecords: extractRecords } = await extractAllFacts(sources, question);
   const verifiedFacts = verifyFactQuotes(rawFacts, sources);
-  const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage(question, sources);
-  const { conflicts, callRecords: conflictRecords } = await detectConflicts(verifiedFacts, sources);
   const outdatedWarnings = checkOutdatedInformation(verifiedFacts, sources, new Date("2026-11-01"));
+
+  const { coverageMatrix, gaps, callRecords: coverageRecords } = await analyzeCoverage({
+    question,
+    sources,
+    facts: verifiedFacts,
+    outdatedWarnings,
+  });
+
+  const { conflicts, callRecords: conflictRecords } = await detectConflicts({
+    facts: verifiedFacts,
+    sources,
+    outdatedWarnings,
+  });
+
   const checklist = generateChecklist({
     conflicts,
     gaps,
@@ -68,7 +80,7 @@ async function main() {
     outdatedWarnings,
     checklist,
     modelsUsed: allModelsUsed,
-    isEmergencyFallback: true, // Marked true when loaded as static emergency fallback
+    isEmergencyFallback: true,
   };
 
   const outPath = path.join(sampleDir, "analysis.json");

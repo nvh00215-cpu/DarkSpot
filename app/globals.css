@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* GapSense Warm Handcrafted Notebook Palette */
+    --background: #F6EFE6;
+    --surface: #FBF7F1;
+    --surface-border: #E3D6C6;
+    
+    --foreground: #3B2A20;
+    --secondary-text: #7A6352;
+    
+    --primary: #6F4E37;
+    --primary-hover: #5A3E2B;
+    --primary-foreground: #F6EFE6;
+
+    /* Semantic Accents */
+    --sage: #7D8F69;
+    --sage-soft: #E6EBDD;
+    
+    --terracotta: #B5573A;
+    --terracotta-soft: #F3DDD3;
+    
+    --ochre: #C08A2E;
+    --ochre-soft: #F5E8CB;
+    
+    --caramel: #A9743F;
+    --caramel-soft: #F5EDE3;
+    
+    --taupe: #A89B8C;
+    --taupe-soft: #EEE7DC;
+
+    --card: #FBF7F1;
+    --card-foreground: #3B2A20;
+    --border: #E3D6C6;
+    --radius: 8px;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Lora', Georgia, serif;
+}
+
+.font-sans {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Notebook quote block styling */
+.quote-block {
+  background-color: #F8F3EC;
+  border-left-width: 3px;
+  border-radius: 4px;
 }
