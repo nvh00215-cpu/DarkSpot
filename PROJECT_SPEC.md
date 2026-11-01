@@ -103,16 +103,21 @@ PROJECT_SPEC.md
 ---
 
 ## 7. Current Status
-- **Current Phase:** Phase 1 Complete with All Review Enhancements Applied.
-- **Completed in Phase 1:**
-  - Designed and typed all shared schemas in `/lib/types.ts` using Zod.
-  - Built unified LLM layer in `/lib/llm.ts`, `/lib/providers/groq.ts` (primary with `qwen/qwen3.8-27b` fallback), and `/lib/providers/gemini.ts` (backup).
-  - Enforced a hard 30-second timeout with AbortController, markdown fence extraction, in-memory cooldown (60s), and failover to secondary provider on any primary failure.
-  - **Coverage Matrix Enhancements:** Topics are now strictly classified as `covered`, `covered_only_by_outdated` (surfacing as potential gaps with explicit note "Only found in an outdated source"), or `potential_gap`.
-  - **Conflict & Cycle Difference Classification:** Disagreements involving outdated/past-cycle sources are typed as `cycle_difference` with Medium confidence. Discrepancies between current sources are typed as `possible_conflict` with High confidence.
-  - **Grouped Outdated Warnings:** Evaluated per source with lists of evidence quotes and explicit `undated` / `outdated` / `current` statuses.
-  - **Actionable Topics:** Topic generation explicitly guided to focus on actionable submission/eligibility requirements.
-  - **Comprehensive Action Checklist:** Always leads with a High-priority official baseline check, escalates current conflicts and missing documents to High, places cycle differences at Medium, and creates actionable items for every gap.
-  - Re-run pipeline and regenerated `/data/sample/analysis.json`. Verified 24/24 quotes verbatim.
+- **Current Phase:** Phase 2 Complete (Dashboard UI, Warm Handcrafted Notebook Design, Interactive Tabs, and Quote Inspection Panel).
+- **Completed in Phase 2:**
+  - Configured custom warm notebook palette (`#F6EFE6` cream background, `#FBF7F1` surface cards, `#3B2A20` espresso text, `#6F4E37` coffee accent, muted sage, terracotta, ochre, caramel, and taupe).
+  - Integrated `Lora` (serif) and `DM Sans` (humanist sans) typography via clean web font headers.
+  - Initialized shadcn/ui foundation (`components.json`, `lib/utils.ts`, `components/ui/button.tsx`).
+  - Added `maxDuration = 60` and parallel `Promise.allSettled` extraction to `/api/analyze`.
+  - Built **LeftPanel**: Question textarea with counter, URL/Text tabbed source ingestion, source chip remover, "Load sample data" shortcut, and animated progress loading bar with staged messages.
+  - Built **SummaryCards**: Verified facts, potential gaps, possible conflicts, cycle differences, and outdated sources counters.
+  - Built **ConflictsTab**: Side-by-side exact quote comparison (Source A vs Source B) with distinct visual treatments for current conflicts (terracotta) vs cycle differences (ochre).
+  - Built **ChecklistTab**: Interactive checkboxes prioritized into High, Medium, and Low groups with origin metadata badges.
+  - Built **CoverageMatrixTab**: Audit topics x sources grid with clear status badges (`Covered`, `Covered Only by Outdated`, `Potential Gap`) and inline quote previews.
+  - Built **OutdatedWarningsTab**: Grouped source warnings displaying detected cycle dates, status badges, and verbatim evidence quotes.
+  - Built **SummaryTab**: Sourced facts grouped by category filter pills with verified quote indicators.
+  - Built **RightSidePanel**: Slide-over drawer opening on any finding/row click to inspect verbatim quotes, source URLs, and claims.
+  - Added live model telemetry footer and emergency fallback banner allowing preview of `/data/sample/analysis.json`.
+  - Verified compilation: Clean `npm run build` with zero errors.
 - **Next Steps:**
-  - Phase 2: Build the complete Dashboard UI (Left input panel, interactive results tabs, side panel quote inspector, and model telemetry badges).
+  - Phase 3: Final polish, deployment notes, and README documentation.

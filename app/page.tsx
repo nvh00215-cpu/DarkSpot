@@ -5,7 +5,18 @@ import { LeftPanel } from "@/components/LeftPanel";
 import { SummaryCards } from "@/components/SummaryCards";
 import { ConflictsTab } from "@/components/ConflictsTab";
 import { ChecklistTab } from "@/components/ChecklistTab";
-import { AnalysisResult, SourceInput, Conflict, ChecklistItem } from "@/lib/types";
+import { CoverageMatrixTab } from "@/components/CoverageMatrixTab";
+import { OutdatedWarningsTab } from "@/components/OutdatedWarningsTab";
+import { SummaryTab } from "@/components/SummaryTab";
+import { RightSidePanel, SidePanelDetail } from "@/components/RightSidePanel";
+import {
+  AnalysisResult,
+  SourceInput,
+  Conflict,
+  ChecklistItem,
+  Fact,
+  OutdatedWarning,
+} from "@/lib/types";
 import { AlertCircle, FileText, CheckCircle2, AlertTriangle, ShieldCheck, HelpCircle } from "lucide-react";
 
 export default function Home() {
@@ -16,6 +27,7 @@ export default function Home() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [errorBanner, setErrorBanner] = useState<{ code: string; message: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"summary" | "coverage" | "conflicts" | "outdated" | "checklist">("conflicts");
+  const [sidePanelDetail, setSidePanelDetail] = useState<SidePanelDetail | null>(null);
 
   const runAnalysis = async () => {
     setIsLoading(true);
@@ -80,8 +92,105 @@ export default function Home() {
     }
   };
 
+  // Inspect Conflict detail
+  const handleSelectConflict = (c: Conflict) => {
+    setSidePanelDetail({
+      title: c.topic,
+      category: c.category,
+      description: c.explanation,
+      quotes: [
+        {
+          sourceName: c.sourceA.sourceName,
+          quoteText: c.sourceA.quote,
+          factValue: c.sourceA.factValue,
+          isOutdated: c.sourceA.isOutdated,
+        },
+        {
+          sourceName: c.sourceB.sourceName,
+          quoteText: c.sourceB.quote,
+          factValue: c.sourceB.factValue,
+          isOutdated: c.sourceB.isOutdated,
+        },
+      ],
+    });
+  };
+
+  // Inspect Fact detail
+  const handleSelectFact = (f: Fact) => {
+    const source = result?.sources.find((s) => s.id === f.sourceId);
+    setSidePanelDetail({
+      title: f.value,
+      category: f.category,
+      description: f.verificationNote || (f.isVerified ? "Verified verbatim quote from source document." : "Quote could not be found verbatim in source text."),
+      quotes: [
+        {
+          sourceName: source?.name || f.sourceId,
+          sourceUrl: source?.url,
+          quoteText: f.exact_quote,
+          factValue: f.value,
+        },
+      ],
+    });
+  };
+
+  // Inspect Coverage Topic detail
+  const handleSelectTopic = (topic: string, quotes: Record<string, string | undefined>) => {
+    const matchingQuotes = Object.entries(quotes)
+      .filter(([_, q]) => q && q.trim().length > 0)
+      .map(([sId, q]) => {
+        const source = result?.sources.find((s) => s.id === sId);
+        return {
+          sourceName: source?.name || sId,
+          sourceUrl: source?.url,
+          quoteText: q || "",
+        };
+      });
+
+    setSidePanelDetail({
+      title: topic,
+      category: "Coverage Audit",
+      description: `Quotes extracted from each source evaluating coverage for: ${topic}`,
+      quotes: matchingQuotes,
+    });
+  };
+
+  // Inspect Outdated warning detail
+  const handleSelectWarning = (w: OutdatedWarning) => {
+    setSidePanelDetail({
+      title: w.sourceName,
+      category: "Freshness & Cycle Check",
+      description: w.summary,
+      quotes: w.evidenceList.map((e) => ({
+        sourceName: w.sourceName,
+        quoteText: e.quote || "No direct text excerpt recorded",
+        note: `${e.message} (${e.detectedDate || "N/A"})`,
+      })),
+    });
+  };
+
+  // Inspect Checklist item detail
+  const handleSelectChecklistItem = (item: ChecklistItem) => {
+    setSidePanelDetail({
+      title: item.title,
+      category: `${item.priority} Priority Action`,
+      description: item.action,
+      quotes: item.sourceReference
+        ? [
+            {
+              sourceName: item.sourceReference,
+              quoteText: item.action,
+              note: `Checklist Origin: ${item.originType}`,
+            },
+          ]
+        : [],
+    });
+  };
+
   return (
     <main className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col gap-6">
+      {/* Right Side Panel for Quote Inspection */}
+      <RightSidePanel detail={sidePanelDetail} onClose={() => setSidePanelDetail(null)} />
+
       {/* Emergency / Error Banner */}
       {errorBanner && (
         <div className="bg-[#F3DDD3] border border-[#B5573A] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
@@ -102,10 +211,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* Pre-saved Notice if emergency result is loaded */}
+      {/* Pre-saved Notice if emergency fallback is viewed */}
       {result?.isEmergencyFallback && (
         <div className="bg-[#F5E8CB] border border-[#C08A2E] rounded-xl p-3 text-xs text-[#7A6352] flex items-center justify-between">
-          <span>⚠️ Displaying saved result from an earlier run (not live AI generation).</span>
+          <span>⚠️ Displaying saved result from an earlier run, not live.</span>
         </div>
       )}
 
@@ -155,7 +264,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("conflicts")}
-                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all whitespace-nowrap ${
                     activeTab === "conflicts"
                       ? "bg-[#6F4E37] text-[#F6EFE6] font-semibold"
                       : "hover:bg-[#EEE7DC]"
@@ -165,8 +274,41 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setActiveTab("coverage")}
+                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all whitespace-nowrap ${
+                    activeTab === "coverage"
+                      ? "bg-[#6F4E37] text-[#F6EFE6] font-semibold"
+                      : "hover:bg-[#EEE7DC]"
+                  }`}
+                >
+                  Coverage Matrix ({result.coverageMatrix.topics.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("outdated")}
+                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all whitespace-nowrap ${
+                    activeTab === "outdated"
+                      ? "bg-[#6F4E37] text-[#F6EFE6] font-semibold"
+                      : "hover:bg-[#EEE7DC]"
+                  }`}
+                >
+                  Outdated Warnings ({result.outdatedWarnings.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("summary")}
+                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all whitespace-nowrap ${
+                    activeTab === "summary"
+                      ? "bg-[#6F4E37] text-[#F6EFE6] font-semibold"
+                      : "hover:bg-[#EEE7DC]"
+                  }`}
+                >
+                  Sourced Facts ({result.facts.length})
+                </button>
+                <button
+                  type="button"
                   onClick={() => setActiveTab("checklist")}
-                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                  className={`px-3 py-2 rounded-lg cursor-pointer transition-all whitespace-nowrap ${
                     activeTab === "checklist"
                       ? "bg-[#6F4E37] text-[#F6EFE6] font-semibold"
                       : "hover:bg-[#EEE7DC]"
@@ -178,8 +320,32 @@ export default function Home() {
 
               {/* Tab Contents */}
               <div>
-                {activeTab === "conflicts" && <ConflictsTab conflicts={result.conflicts} />}
-                {activeTab === "checklist" && <ChecklistTab items={result.checklist} />}
+                {activeTab === "conflicts" && (
+                  <ConflictsTab conflicts={result.conflicts} onSelectConflict={handleSelectConflict} />
+                )}
+                {activeTab === "coverage" && (
+                  <CoverageMatrixTab
+                    coverageMatrix={result.coverageMatrix}
+                    sources={result.sources}
+                    onSelectTopic={handleSelectTopic}
+                  />
+                )}
+                {activeTab === "outdated" && (
+                  <OutdatedWarningsTab
+                    warnings={result.outdatedWarnings}
+                    onSelectWarning={handleSelectWarning}
+                  />
+                )}
+                {activeTab === "summary" && (
+                  <SummaryTab
+                    facts={result.facts}
+                    sources={result.sources}
+                    onSelectFact={handleSelectFact}
+                  />
+                )}
+                {activeTab === "checklist" && (
+                  <ChecklistTab items={result.checklist} onSelectItem={handleSelectChecklistItem} />
+                )}
               </div>
 
               {/* Telemetry Footer */}
